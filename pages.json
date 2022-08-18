@@ -1,0 +1,1996 @@
+{
+	"easycom": {
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/tabbar/settle/settle",
+			"style": {
+				"navigationBarTitleText": "安居",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/Login/Login",
+			"style": {
+				// "navigationBarTitleText": "登录",
+				"app-plus": {
+					// "softinputMode":"adjustResize",
+					"titleNView": false, //取消导航栏
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/message",
+			"style": {
+				"navigationBarTitleText": "消息",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/system",
+			"style": {
+				"navigationBarTitleText": "系统消息"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/order",
+			"style": {
+				"navigationBarTitleText": "订单消息"
+			}
+		},
+		{
+			"path": "pages/tabbar/repair/repair",
+			"style": {
+				"navigationBarTitleText": "维修"
+			}
+		},
+		{
+			"path": "pages/tabbar/find/find",
+			"style": {
+				"navigationBarTitleText": "发现",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			// 通用界面
+			"path": "pages/design/design_detail",
+			"style": {
+				"navigationBarTitleText": "设计详情"
+			}
+		},
+		{
+			"path": "pages/design/reward_amount",
+			"style": {
+				"navigationBarTitleText": "悬赏金额"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/ParticipatingDesigners",
+			"style": {
+				"navigationBarTitleText": "参与设计师"
+			}
+		},
+		{
+			// 个人主页【渐变式导航栏】
+			"path": "pages/tabbar/find/PersonalHomePage",
+			"style": {
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarTextStyle": "black",
+				"navigationBarTitleText": "个人主页",
+				"titleNView": false,
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce": "vertical"
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/find/ReleaseText",
+			"style": {
+				"navigationBarTitleText": "发布文字"
+			}
+		},
+		{
+			"path": "pages/tabbar/find/ReleaseImageText",
+			"style": {
+				"navigationBarTitleText": "发布图文"
+			}
+		},
+		{
+			"path": "pages/tabbar/find/ReleaseVideo",
+			"style": {
+				"navigationBarTitleText": "发布视频"
+			}
+		},
+		{
+			"path": "pages/tabbar/find/Report",
+			"style": {
+				"navigationBarTitleText": "举报内容"
+			}
+		},
+		// {
+		// 	"path": "pages/tabbar/my/my",
+		// 	"style": {
+		// 		"navigationBarTitleText": "我的",
+		// 		"enablePullDownRefresh":true,
+		// 		"app-plus": {
+		// 			"titleNView": {
+		// 				"buttons": [{
+		// 					// "text": "\ue6f1",
+		// 					"text": "\ue619",
+		// 					"fontSrc": "/static/iconfont/iconfont.ttf",
+		// 					"fontSize": "40rpx",
+		// 					"float": "right"
+		// 				}]
+		// 			},
+		// 			"bounce": "none" //取消回弹
+		// 		}
+		// 	}
+		// },
+		{
+			"path": "pages/tabbar/my/my",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"enablePullDownRefresh":false,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							// "text": "\ue6f1",
+							"text": "\ue619",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/my/setup",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/Login/ForgetPassword",
+			"style": {
+				"navigationBarTitleText": "重置密码"
+			}
+		},
+		{
+			"path": "pages/Login/SetNewPwd",
+			"style": {
+				"navigationBarTitleText": "设置新密码"
+			}
+		},
+		{
+			//H5跳转地址
+			"path": "pages/webview/webview",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/my/personalinformation",
+			"style": {
+				"navigationBarTitleText": "个人信息"
+			}
+		},
+		{
+			"path": "pages/my/notice/index",
+			"style": {
+				"navigationBarTitleText": "公示公告"
+			}
+		},
+		{
+			"path": "pages/my/notice/detail",
+			"style": {
+				"navigationBarTitleText": "公告详情"
+			}
+		},
+		{
+			"path": "pages/my/feedback/index",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/my/about",
+			"style": {
+				"navigationBarTitleText": "关于安居邦"
+			}
+		},
+		{
+			// 已经实名认证
+			"path": "pages/my/authentication/realnameauthentication",
+			"style": {
+				"navigationBarTitleText": "实名认证"
+			}
+		},
+		{
+			// 未实名认证
+			"path": "pages/my/authentication/norealnameauthentication",
+			"style": {
+				"navigationBarTitleText": "实名认证"
+			}
+		},
+		{
+			"path": "pages/chat/chat/chat",
+			"style": {
+				"navigationBarTitleText": "聊天",
+				"app-plus": {
+					"titleNView": false //取消导航栏
+				}
+				// "app-plus": {
+				// 	"titleNView": {
+				// 		"buttons": [{
+				// 			"text": "举报",
+				// 			"fontSize": "28rpx",
+				// 			"float": "right",
+				// 			"color": "#101010",
+				// 			"width": "80rpx"
+				// 		}]
+				// 	}
+				// }
+				// "app-plus": {
+				// 	"titleNView": {
+				// 		"buttons": [{
+				// 			"fontSize": "50rpx",
+				// 			"float": "right",
+				// 			"type": "menu"
+				// 		}]
+				// 	}
+				// }
+			}
+		},
+		{
+			"path": "pages/chat/video/video",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "视频播放",
+				"app-plus": {
+					"titleNView": false, //取消导航栏
+					"bounce": "vertical" //垂直方向有反弹效果
+				}
+			}
+		},
+		{
+			"path": "pages/chat/map/map",
+			"style": {
+				"navigationBarTitleText": "地址信息"
+			}
+		},
+		{
+			"path": "pages/my/infomodify/NickName",
+			"style": {
+				"navigationBarTitleText": "昵称"
+			}
+		},
+		{
+			"path": "pages/my/infomodify/Sex",
+			"style": {
+				"navigationBarTitleText": "性别"
+			}
+		},
+		{
+			"path": "pages/my/infomodify/PersonalSignature",
+			"style": {
+				"navigationBarTitleText": "个性签名"
+			}
+		},
+		{
+			"path": "pages/my/infomodify/Email",
+			"style": {
+				"navigationBarTitleText": "邮箱"
+			}
+		},
+		{
+			"path": "pages/my/infomodify/Address",
+			"style": {
+				"navigationBarTitleText": "省市区"
+			}
+		},
+		{
+			"path": "uview-ui/components/u-avatar-cropper/u-avatar-cropper",
+			"style": {
+				"navigationBarTitleText": "头像裁剪",
+				"navigationBarBackgroundColor": "#000000"
+			}
+		},
+		{
+			"path": "uview-ui/components/u-avatar-cropper/upload-cover-image",
+			"style": {
+				"navigationBarTitleText": "上传封面图",
+				"app-plus":{
+					"bounce":"none"
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/mycertification",
+			"style": {
+				"navigationBarTitleText": "我的认证",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "收款方式",
+							"fontSize": "28rpx",
+							"float": "right",
+							"color": "#101010",
+							"width": "140rpx"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/typework_authentication",
+			"style": {
+				"navigationBarTitleText": "工种认证"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/PaymentMethod/Index",
+			"style": {
+				"navigationBarTitleText": "收款方式"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/PaymentMethod/add_bank_card",
+			"style": {
+				"navigationBarTitleText": "添加银行卡"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/PaymentMethod/bank_list",
+			"style": {
+				"navigationBarTitleText": "银行列表"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/PaymentMethod/add_alipay",
+			"style": {
+				"navigationBarTitleText": "添加支付宝"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/PaymentMethod/add_wechat",
+			"style": {
+				"navigationBarTitleText": "添加微信"
+			}
+		},
+		{
+			"path": "pages/my/my-house/house-property",
+			"style": {
+				"navigationBarTitleText": "我的房产",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path" : "pages/my/my-house/add-house",
+			"style" :                                                                                    
+			{
+			    "navigationBarTitleText": "添加房产",
+			    "enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/my/my-house/PropertyDetails",
+			"style": {
+				"navigationBarTitleText": "房产详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/design-case",
+			// "style": {
+			// 	"navigationBarTitleText": "设计案例"
+			// }
+			"style": {
+				// "navigationBarBackgroundColor": "#00c170",
+				// "enablePullDownRefresh":true,
+				"enablePullDownRefresh":false,
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"searchInput": {
+							"align": "left",
+							"placeholder": "搜索",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5",
+							"disabled":true
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/case-details",
+			"style": {
+				"navigationBarTitleText": "案例详情",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue6a5",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/catalog",
+			"style": {
+				"navigationBarTitleText": "目录"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/encyclopedias",
+			"style": {
+				"navigationBarTitleText": "家装百科",
+				"app-plus":{
+					"bounce":"none"
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/encyclopediasDetail",
+			"style": {
+				"navigationBarTitleText": "百科详情"
+				// "app-plus": {
+				// 	"titleNView": {
+				// 		"buttons": [{
+				// 			"text": "\ue6a5",
+				// 			"fontSrc": "/static/iconfont/iconfont.ttf",
+				// 			"fontSize": "40rpx",
+				// 			"float": "right"
+				// 		}]
+				// 	}
+				// }
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/style-test/index",
+			"style": {
+				"navigationBarTitleText": "风格测试",
+				"app-plus":{
+					"bounce":"none"//取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/style-test/DecorationStyle",
+			"style": {
+				"navigationBarTitleText": "装修风格测试",
+				"app-plus":{
+					"bounce":"none"//取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/style-test/Waiting",
+			"style": {
+				"navigationBarTitleText": "风格测试",//等待中
+				"app-plus":{
+					"bounce":"none"//取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/HomeShoppingMall",
+			// "style": {
+			// 	"navigationBarTitleText": "家居商城"
+			// }
+			"style": {
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"searchInput": {
+							"align": "left",
+							"placeholder": "请输入商品信息",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5",
+							"disabled":true
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/ProductDetails",
+			"style": {
+				"navigationBarTitleText": "商品详情"
+				// "app-plus": {
+				// 	"bounce":"none",//取消回弹
+				// 	"titleNView": {
+				// 		"buttons": [{
+				// 			"text": "\ue6a5",
+				// 			"fontSrc": "/static/iconfont/iconfont.ttf",
+				// 			"fontSize": "40rpx",
+				// 			"float": "right"
+				// 		}]
+				// 	}
+				// }
+			}
+		},
+		{
+			"path": "pages/tabbar/repair/OrderInformation",
+			"style": {
+				"navigationBarTitleText": "订单信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/repair/ServiceAppointment",
+			"style": {
+				"navigationBarTitleText": "维修预约"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/DecorationRecord",
+			"style": {
+				"navigationBarTitleText": "装修记录",
+				"enablePullDownRefresh":true
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/RecordDetails",
+			"style": {
+				"navigationBarTitleText": "记录详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/RealEstateDisplay",
+			// "style": {
+			// 	"navigationBarTitleText": "房产展示"
+			// }
+			"style": {
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"searchInput": {
+							"align": "left",
+							// "placeholder": "搜索",
+							"placeholder": "请输入房产信息",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5",
+							"disabled":true
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/EstateSearch",
+			"style": {
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"autoBackButton": false, //取消返回按键
+						"buttons": [{
+							"text": "取消",
+							"fontSize": "16",
+							"float": "right",
+							"color": "#101010"
+						}],
+						"searchInput": {
+							"align": "left",
+							"placeholder": "请输入房产信息",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5"
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/PropertyDetails",
+			"style": {
+				"navigationBarTitleText": "房产详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/DecorationBudget",
+			"style": {
+				"navigationBarTitleText": "装修计算"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/CellList",
+			"style": {
+				"navigationBarTitleText": "小区列表"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/HouseTypeSelection",
+			"style": {
+				"navigationBarTitleText": "户型选择"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/CalculationResults",
+			"style": {
+				"navigationBarTitleText": "计算结果"
+			}
+		},
+		{
+			"path": "pages/design/iwantdesign",
+			"style": {
+				"navigationBarTitleText": "我要设计"
+			}
+		},
+		{
+			"path": "pages/design/my_property",
+			"style": {
+				"navigationBarTitleText": "我的房产",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/design/publishsuccessfully",
+			"style": {
+				"navigationBarTitleText": "发布成功"
+			}
+		},
+		{
+			"path": "pages/design/Includeproject",
+			"style": {
+				"navigationBarTitleText": "包含项目",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue660",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/style-test/Designer",
+			"style": {
+				"navigationBarTitleText": "设计师",//测试详情
+				"app-plus":{
+					"bounce":"none"//取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/system",
+			"style": {
+				"navigationBarTitleText": "系统消息",
+				"enablePullDownRefresh":true
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/activity",
+			"style": {
+				"navigationBarTitleText": "活动",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue66c",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/MyActivities",
+			"style": {
+				"navigationBarTitleText": "我的活动",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/EventRelease",
+			"style": {
+				"navigationBarTitleText": "活动发布",
+				"app-plus":{
+					"titleNView": {
+						"buttons": [{
+							"text": "发布",
+							"fontSize": "30rpx",
+							"float": "right",
+							"width":"120rpx",
+							"color":"#FF9900"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/EventDetails",
+			"style": {
+				"navigationBarTitleText": "活动详情",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue61e",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/Index/PropertyDetails",
+			"style": {
+				"navigationBarTitleText": "房产详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/repair/AppointmentSuccessful",
+			"style": {
+				// "navigationBarTitleText": "维修成功"
+				"navigationBarTitleText": "预约成功"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/MoreCategories",
+			"style": {
+				"navigationBarTitleText": "更多分类"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/ProductList",
+			"style": {
+				// "navigationBarTitleText": "商品列表"
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"searchInput": {
+							"align": "left",
+							"placeholder": "请输入商品信息",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5",
+							"disabled":true
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/coordinationtask",
+			"style": {
+				"navigationBarTitleText": "销售协同",
+				"app-plus": {
+					"bounce": "none" //没有反弹效果
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/ActivityTitle",
+			"style": {
+				// "navigationBarTitleText": "活动标题"
+				"navigationBarTitleText": "案例标题"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/CaseIntroduction",
+			"style": {
+				"navigationBarTitleText": "案例介绍"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/ActivityInformation",
+			"style": {
+				"navigationBarTitleText": "活动信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/ActiveCommodities",
+			"style": {
+				"navigationBarTitleText": "活动商品"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/AddImg",
+			"style": {
+				"navigationBarTitleText": "添加图片"
+			}
+		},
+		{
+			// 【销售协同】-【订单详情】
+			"path": "pages/tabbar/message/SubPage/SalesCollaboration/OrderDetails",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			// 【销售协同】-【材料清单】
+			"path": "pages/tabbar/message/SubPage/SalesCollaboration/MaterialList",
+			"style": {
+				"navigationBarTitleText": "材料清单"
+			}
+		},
+		{
+			//【我的-销售订单】
+			"path": "pages/tabbar/my/SalesOrder/SalesMaterialList",
+			"style": {
+				"navigationBarTitleText": "材料清单"
+			}
+		},
+		{
+            "path" : "pages/tabbar/settle/CaseSearch",
+			"style": {
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"autoBackButton":false,//取消返回按键
+						"buttons": [{
+								"text": "取消",
+								"fontSize": "16",
+								"float": "right",
+								"color": "#101010"
+							}
+						],
+						"searchInput": {
+							"align": "left",
+							"placeholder": "请输入案例信息",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5"
+						}
+					}
+				}
+			}            
+        },
+		{
+			"path": "pages/tabbar/message/NavMenu/demand",
+			"style": {
+				// "navigationBarTitleText": "需求"
+				"navigationBarTitleText": "我的发布",
+				"enablePullDownRefresh":true
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/task",
+			"style": {
+				"navigationBarTitleText": "任务大厅",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		// 【消息需求】-【我的发布】-【设计任务】
+		{
+			"path": "pages/tabbar/message/NavMenu/PublishDesignTasks",
+			"style": {
+				// "navigationBarTitleText": "设计任务"
+				"navigationBarTitleText": "设计详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/DesignCase",
+			// "style": {
+			// 	"navigationBarTitleText": "设计案例"
+			// }
+			"style": {
+				// "navigationBarBackgroundColor": "#00c170",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"searchInput": {
+							"align": "left",
+							"placeholder": "搜索",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5",
+							"disabled":true
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/SpaceDetails",
+			"style": {
+				"navigationBarTitleText": "空间详情"
+			}
+		},
+		{
+			"path": "pages/TaskOrder/AllWorkOrders",
+			"style": {
+				"navigationBarTitleText": "全部工单",
+				"enablePullDownRefresh":true
+			}
+		},
+		{
+			"path": "pages/UserLive/DesignWordOrder",
+			"style": {
+				"navigationBarTitleText": "设计工单"
+			}
+		},
+		{
+			"path": "pages/UserLive/HousingArchives",
+			"style": {
+				"navigationBarTitleText": "安居档案",
+				"enablePullDownRefresh":true
+			}
+		},
+		{
+			"path": "pages/UserLive/MyPoints",
+			"style": {
+				"navigationBarTitleText": "我的积分",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/UserLive/PromotionCenter/Index",
+			"style": {
+				"navigationBarTitleText": "推广中心"
+			}
+		},
+		{
+			"path": "pages/UserLive/PromotionCenter/Commission",
+			"style": {
+				"navigationBarTitleText": "佣金"
+			}
+		},
+		{
+			"path": "pages/UserLive/PromotionCenter/ShareRecords",
+			"style": {
+				"navigationBarTitleText": "分享记录"
+			}
+		},
+		{
+			"path": "pages/UserLive/PromotionCenter/Referrer",
+			"style": {
+				"navigationBarTitleText": "推荐人"
+			}
+		},
+		{
+			"path": "pages/UserLive/PromotionCenter/DesignOrder",
+			"style": {
+				"navigationBarTitleText": "设计订单"
+			}
+		},
+		{
+			"path": "pages/TaskOrder/MyPlan",
+			"style": {
+				"navigationBarTitleText": "我的方案"
+			}
+		},
+		{
+			"path": "pages/TaskOrder/MyCase/Index",
+			"style": {
+				"navigationBarTitleText": "我的案例",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"index":"0",
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						},
+						{
+							"index":"1",
+							"text": "\ue6a8",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/TaskOrder/MyCase/DesignOrder",
+			"style": {
+				"navigationBarTitleText": "设计订单"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/ProductSearch",
+			"style": {
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"autoBackButton": false, //取消返回按键
+						"buttons": [{
+							"text": "取消",
+							"fontSize": "16",
+							"float": "right",
+							"color": "#101010"
+						}],
+						"searchInput": {
+							"align": "left",
+							"placeholder": "请输入商品信息",
+							"borderRadius": "15px",
+							"backgroundColor": "#f3f4f5"
+						}
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/find/homepage",
+			"style": {
+				"navigationBarTitleText": "详情",
+				"app-plus": {
+					"titleNView": {
+						"type": "transparent"
+						// ,
+						// "buttons": [{
+						// 	"text": "\ue81b",
+						// 	"fontSrc": "/static/iconfont/iconfont.ttf",
+						// 	"fontSize": "40rpx",
+						// 	"float": "right",
+						// 	"width": "80rpx"
+						// }]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_management",
+			"style": {
+				"navigationBarTitleText": "商品管理",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_classification",
+			"style": {
+				"navigationBarTitleText": "商品分类"
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_add",
+			"style": {
+				"navigationBarTitleText": "添加商品"
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_label",
+			"style": {
+				"navigationBarTitleText": "商品标签"
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_details",
+			"style": {
+				"navigationBarTitleText": "商品详情"
+			}
+		},
+		{
+			"path": "pages/ShopManagement/listing",
+			"style": {
+				"navigationBarTitleText": "上架列表",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "新上架",
+							"fontSize": "28rpx",
+							"float": "right",
+							"color": "#FF9900",
+							"width": "100rpx"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_offline",
+			"style": {
+				"navigationBarTitleText": "未上架商品列表"
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_online",
+			"style": {
+				"navigationBarTitleText": "商品上架"
+			}
+		},
+		{
+			"path": "pages/ShopManagement/commodity_status",
+			"style": {
+				"navigationBarTitleText": "商品状态"
+			}
+		},
+		{
+			"path": "pages/like/index",
+			"style": {
+				"navigationBarTitleText": "点赞"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/Index/Follow",
+			"style": {
+				"navigationBarTitleText": "关注",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/Index",
+			"style": {
+				"navigationBarTitleText": "钱包",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue99c",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"width": "60rpx",
+							"float": "right",
+							"color": "#101010"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/Withdrawal",
+			"style": {
+				"navigationBarTitleText": "提现",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "提现记录",
+							"fontSize": "28rpx",
+							"float": "right",
+							"color": "#FF9900",
+							"width": "140rpx"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/my/wallet/WithdrawalRecord",
+			"style": {
+				"navigationBarTitleText": "提现记录"
+			}
+		},
+		{
+			// 提现方式
+			"path": "pages/my/wallet/WithdrawalMethod",
+			"style": {
+				"navigationBarTitleText": "银行卡"
+			}
+		},
+		{
+			"path": "pages/my/wallet/AddBankCard",
+			"style": {
+				"navigationBarTitleText": "添加银行卡"
+			}
+		},
+		{
+			"path": "pages/my/wallet/ModifyBankCard",
+			"style": {
+				"navigationBarTitleText": "修改银行卡"
+			}
+		},
+		{
+			"path": "pages/my/wallet/TransactionDetails",
+			"style": {
+				"navigationBarTitleText": "提现记录"
+			}
+		},
+		{
+			"path": "pages/my/wallet/WithdrawalDetails",
+			"style": {
+				"navigationBarTitleText": "提现详情"
+			}
+		},
+		{
+			"path": "pages/TaskOrder/MyCase/DraftCase",
+			"style": {
+				"navigationBarTitleText": "案例草稿"
+			}
+		},
+		{
+			"path": "pages/TaskOrder/MyCase/AddCase",
+			"style": {
+				"navigationBarTitleText": "新增案例",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"index": "0",
+							"text": "发布",
+							"fontSize": "30rpx",
+							"float": "right",
+							"width": "80rpx",
+							"color": "#FF9900"
+						}, {
+							"index": "1",
+							"text": "\ue6a8",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			// 任务大厅【接单】
+			"path": "pages/tabbar/message/NavMenu/designassignment",
+			"style": {
+				"navigationBarTitleText": "设计任务"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/NavMenu/conceptualdesign",
+			"style": {
+				"navigationBarTitleText": "方案设计",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "发布",
+							"fontSize": "30rpx",
+							"float": "right",
+							"width": "120rpx",
+							"color": "#FF9900"
+						}]
+					}
+				}
+			}
+		},
+		{
+			// 3D效果图
+			"path": "pages/tabbar/message/NavMenu/conceptualDesignSketch",
+			"style": {
+				"navigationBarTitleText": "方案设计",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "发布",
+							"fontSize": "30rpx",
+							"float": "right",
+							"width": "120rpx",
+							"color": "#FF9900"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/design/set_money",
+			"style": {
+				// "navigationBarTitleText": "设置设计费用"
+				"navigationBarTitleText": "费用方案明细"
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/ContractInformation",
+			"style": {
+				"navigationBarTitleText": "合同信息",
+				"app-plus": {
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			// 【用户支付界面】
+			"path": "pages/ServiceOrder/Pay/Index",
+			"style": {
+				// "navigationBarTitleText": "支付服务"
+				"navigationBarTitleText": "设计费用详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/DesignConstructionConfirm",
+			"style": {
+				"navigationBarTitleText": "装修施工图确认"
+			}
+		},
+		{
+			"path": "pages/design/task_evaluation",
+			"style": {
+				"navigationBarTitleText": "任务评价"
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/BillMaterialsConfirm",
+			"style": {
+				// "navigationBarTitleText": "确认材料清单",
+				"navigationBarTitleText": "材料清单",
+				"enablePullDownRefresh":true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/PersonnelConfirm",
+			"style": {
+				// "navigationBarTitleText": "施工监理人员确认"
+				"navigationBarTitleText": "施工清单"
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/SupervisionList",
+			"style": {
+				// "navigationBarTitleText": "监理列表",
+				"navigationBarTitleText": "监理方案",
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/AddSupervisor",
+			"style": {
+				"navigationBarTitleText": "监理列表",
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue660",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/design/say_front",
+			"style": {
+				// "navigationBarTitleText": "说在前面"
+				"navigationBarTitleText": "设计理念"
+			}
+		},
+		{
+			"path": "pages/tabbar/message/SubPage/EffectLink",
+			"style": {
+				"navigationBarTitleText": "3D效果链接"
+			}
+		},
+		{
+			// 用户维修单
+			"path": "pages/UserLive/RepairOrder",
+			"style": {
+				"navigationBarTitleText": "维修订单",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			//【我的-销售订单】
+			"path": "pages/tabbar/my/SalesOrder/SalesOrder",
+			"style": {
+				"navigationBarTitleText": "销售订单",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					},
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			//【我的-销售订单】
+			"path": "pages/tabbar/my/SalesOrder/SalesOrderDetails",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			//【用户安居-施工工单】
+			"path": "pages/UserLive/NewWork/ConstructionWorkOrder",
+			"style": {
+				"navigationBarTitleText": "施工工单"
+			}
+		},
+		{
+			"path": "pages/UserLive/ConstructionWorkOrder",
+			"style": {
+				// "navigationBarTitleText": "施工工单"
+				"navigationBarTitleText": "工人工单"
+			}
+		},
+		{
+			"path": "pages/UserLive/ConstructionTask",
+			"style": {
+				"navigationBarTitleText": "施工任务"
+			}
+		},
+		{
+			"path": "pages/UserLive/ConstructionNodeDetail",
+			"style": {
+				"navigationBarTitleText": "施工节点详情"
+			}
+		},
+		{
+			"path": "pages/UserLive/ReleaseContent",
+			"style": {
+				"navigationBarTitleText": "发布内容"
+				// "app-plus":{
+				// 	"titleNView": {
+				// 		"buttons": [{
+				// 			"text": "发布",
+				// 			"fontSize": "30rpx",
+				// 			"float": "right",
+				// 			"width":"100rpx",
+				// 			"color":"#FF9900"
+				// 		}]
+				// 	}
+				// }
+			}
+		},
+		{
+			"path": "pages/UserLive/ServiceOrder",
+			"style": {
+				"navigationBarTitleText": "服务工单",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/CreateOrder",
+			"style": {
+				"navigationBarTitleText": "创建订单"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/MerchantOrder",
+			"style": {
+				"navigationBarTitleText": "商家订单",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			// 商铺维修单
+			"path": "pages/tabbar/my/OrderWork/BusinessRepairOrder",
+			"style": {
+				"navigationBarTitleText": "维修订单"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/SupervisionWorkOrder",
+			"style": {
+				"navigationBarTitleText": "监理工单",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/ConstructionTask",
+			"style": {
+				"navigationBarTitleText": "施工任务"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/ListOfWorkers",
+			"style": {
+				"navigationBarTitleText": "工人清单"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/PersonnelAddition",
+			"style": {
+				"navigationBarTitleText": "施工节点-人员添加",
+				"app-plus": {
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue660",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/ContractInformation",
+			"style": {
+				"navigationBarTitleText": "合同信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/PaymentInformation",
+			"style": {
+				"navigationBarTitleText": "支付信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/ConstructionNode",
+			"style": {
+				"navigationBarTitleText": "施工节点",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "查看材料",
+							"fontSize": "28rpx",
+							"float": "right",
+							"color": "#101010",
+							"width": "140rpx"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/MembershipCertification",
+			"style": {
+				"navigationBarTitleText": "会员认证",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue61e",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/BusinessCertification",
+			"style": {
+				// "navigationBarTitleText": "商家认证",
+				"navigationBarTitleText": "商铺信息",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue61e",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/WorkerCertification",
+			"style": {
+				"navigationBarTitleText": "工人认证",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue61e",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/modify/WorkerCertification",
+			"style": {
+				"navigationBarTitleText": "工人基本信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/authentication/shop_certification",
+			"style": {
+				"navigationBarTitleText": "商铺认证"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/authentication/shop_category",
+			"style": {
+				"navigationBarTitleText": "商品类别",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue660",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/authentication/type_work",
+			"style": {
+				"navigationBarTitleText": "工种认证"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/authentication/be_good",
+			"style": {
+				"navigationBarTitleText": "擅长"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/Agreement/AgreeShareAgreement",
+			"style": {
+				"navigationBarTitleText": "共享经济合作伙伴协议",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/tabbar/my/authentication/BusinessAudit",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/authentication/UnderReview",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/Business/index",
+			"style": {
+				"navigationBarTitleText": "商铺认证",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/Business/Frist",
+			"style": {
+				"navigationBarTitleText": "商铺认证",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/tabbar/find/DesignerInformation",
+			"style": {
+				"navigationBarTitleText": "设计师信息"
+				// "navigationBarTitleText": "设计师"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/DesignerCertification",
+			"style": {
+				"navigationBarTitleText": "设计师认证",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue61e",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/modify/DesignerCertification",
+			"style": {
+				"navigationBarTitleText": "设计师基本信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/Designer/SharingBroker",
+			"style": {
+				"navigationBarTitleText": "共享经纪协议"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/Designer/DesignerPlatformServices",
+			"style": {
+				"navigationBarTitleText": "设计师平台服务协议"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/datamodification/BusinessLicense",
+			"style": {
+				"navigationBarTitleText": "营业执照"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/datamodification/HoldingIDCard",
+			"style": {
+				"navigationBarTitleText": "手持身份证"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/datamodification/FrontDoorPhoto",
+			"style": {
+				"navigationBarTitleText": "门面照"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/datamodification/ShopStaff",
+			"style": {
+				"navigationBarTitleText": "商铺员工",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue81b",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			// 商铺员工【右上角菜单】
+			"path": "pages/tabbar/my/datamodification/AddShopStaff",
+			"style": {
+				// "navigationBarTitleText": "商铺员工"
+				"navigationBarTitleText": "专职人员邀请"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/SalesStaffCertification",
+			"style": {
+				"navigationBarTitleText": "销售人员认证",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue61e",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/identityauthentication/modify/SalesStaffCertification",
+			"style": {
+				"navigationBarTitleText": "销售人员基本信息"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/ShopHomepage",
+			"style": {
+				"navigationBarTitleText": "店铺主页"
+				// "app-plus": {
+				// 	"bounce": "none", //取消回弹
+				// 	"titleNView": {
+				// 		"buttons": [{
+				// 			"text": "\ue66c",
+				// 			"fontSrc": "/static/iconfont/iconfont.ttf",
+				// 			"fontSize": "40rpx",
+				// 			"float": "right"
+				// 		}]
+				// 	}
+				// }
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/CommodityClassification",
+			"style": {
+				"navigationBarTitleText": "商品分类",
+				"app-plus": {
+					"bounce": "none" //取消回弹
+				}
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/OrderDetails",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/ShopStaff",
+			"style": {
+				"navigationBarTitleText": "商铺员工",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/tabbar/my/OrderWork/MaterialList",
+			"style": {
+				"navigationBarTitleText": "材料清单"
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/HouseType",
+			"style": {
+				"navigationBarTitleText": "房产分类",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/tabbar/settle/HouseList",
+			"style": {
+				"navigationBarTitleText": "房产列表",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/TaskOrder/MyCase/EffectPreview",
+			"style": {
+				"navigationBarTitleText": "3D效果",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue6a5",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/PaymentInformation",
+			"style": {
+				// 【支付查看界面】
+				// "navigationBarTitleText": "支付信息"
+				"navigationBarTitleText": "支付服务",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "\ue6a5",
+							"fontSrc": "/static/iconfont/iconfont.ttf",
+							"fontSize": "40rpx",
+							"float": "right"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/Paid",
+			"style": {
+				"navigationBarTitleText": "支付信息",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{
+							"text": "追加费用",
+							"fontSize": "28rpx",
+							"float": "right",
+							"color": "#101010",
+							"width": "120rpx"
+						}]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/ServiceOrder/Pay/RefundRequest",
+			"style": {
+				"navigationBarTitleText": "申请退款"
+			}
+		}
+		
+		
+	],
+	"tabBar": { //底部导航栏配置
+		"color": "#929292",
+		"selectedColor": "#FF9900",
+		"borderStyle": "black",
+		"backgroundColor": "#FFFFFF",
+		"list": [{
+				"pagePath": "pages/tabbar/message/message",
+				"iconPath": "static/img/tabbar/msg.png",
+				"selectedIconPath": "static/img/tabbar/msg-on.png",
+				"text": "消息"
+			},
+			{
+				"pagePath": "pages/tabbar/settle/settle",
+				"iconPath": "static/img/tabbar/workcircle.png",
+				"selectedIconPath": "static/img/tabbar/workcircle-on.png",
+				"text": "安居"
+			},
+			{
+				"pagePath": "pages/tabbar/repair/repair",
+				"iconPath": "static/img/tabbar/workbench.png",
+				"selectedIconPath": "static/img/tabbar/workbench-on.png",
+				"text": "维修"
+			},
+			{
+				"pagePath": "pages/tabbar/find/find",
+				"iconPath": "static/img/tabbar/maillist.png",
+				"selectedIconPath": "static/img/tabbar/maillist-on.png",
+				"text": "发现"
+			},
+			{
+				"pagePath": "pages/tabbar/my/my",
+				"iconPath": "static/img/tabbar/my.png",
+				"selectedIconPath": "static/img/tabbar/my-on.png",
+				"text": "我的"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#FFFFFF"
+	}
+}

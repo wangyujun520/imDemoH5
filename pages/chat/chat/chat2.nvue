@@ -1,0 +1,1848 @@
+<template>
+	<view class="content">
+		<!-- 聊天内容区域 -->
+		<scroll-view
+			scroll-y="true"
+			:show-scrollbar="IsIOS"
+			@scrolltoupper="loadHistory"
+			upper-threshold="50"
+			class="bg-light position-fixed left-0 right-0 top-0 px-3 pt-3"
+			:style="chatBodyBottom">
+			<!-- 顶部消息刷新提示 -->
+			<view v-if="loadState" class="bg-light flex align-center justify-center">
+				<image src="@/static/img/loading/loading-small.gif" mode="widthFix" style="width: 30rpx;height: 30rpx;"></image>
+				<text class="font ml-1" style="color: #A9A5A0;">加载中...</text>
+			</view>
+			<!-- 聊天信息列表组件 -->
+			<block v-for="(item, index) in list" :key="item.ID">
+				<free-chat-item
+					ref="chatItem"
+					:item="item"
+					:MyUserId="MyUserId"
+					:index="index"
+					:pretime="index > 0 ? list[index - 1].create_time : 0"
+					@long="long"
+					@preview="previewImage"
+				></free-chat-item>
+			</block>
+		</scroll-view>
+		<!-- .stop.prevent -->
+		<!-- #ifdef APP-PLUS-NVUE -->
+		<!-- || mode === 'text' -->
+		<div v-if="mode === 'action' || mode === 'emoticon'" class="position-fixed top-0 right-0 left-0" :style="'bottom:' + maskBottom + 'px;'" @tap="clickPage"></div>
+		<!-- #endif -->
+
+		<!-- 底部输入框 -->
+		<view
+			class="position-fixed left-0 right-0 border-top flex align-center bg-dark"
+			style="background-color: #F7F7F7;height: 105rpx;"
+			:style="'bottom:' + KeyboardHeight + 'px'">
+			<!-- 语音文本切换 -->
+			<view @click="SwitchText" v-if="mode === 'audio'" class="flex align-center justify-center" style="height: 90rpx;width: 90rpx;">
+				<text class="iconfont font-lg">&#xe676;</text>
+			</view>
+			<view @click="SwitchAudio" v-else class="flex align-center justify-center" style="height: 90rpx;width: 90rpx;"><text class="iconfont font-lg">&#xe664;</text></view>
+			<!-- 文本输入框 -->
+			<view class="flex-1">
+				<view
+					v-if="mode == 'audio'"
+					class="rounded flex align-center justify-center"
+					:class="isRecording ? 'bg-hover-light' : 'bg-white'"
+					style="height: 80rpx;"
+					@touchstart="voiceTouchStart"
+					@touchend="voiceTouchEnd"
+					@touchcancel="voiceTouchCancel"
+					@touchmove="voiceTouchMove"
+				>
+					<text class="font">{{ isRecording ? '松开 结束' : '按住 说话' }}</text>
+				</view>
+				<textarea
+					v-else
+					ref="input"
+					@focus="focusInput"
+					:focus="isfocus"
+					v-model="text"
+					show-confirm-bar="false"
+					fixed="true"
+					adjust-position="false"
+					class="bg-white rounded p-1 font-md"
+					style="height: 80rpx;"
+				/>
+			</view>
+			<!-- 表情 -->
+			<view @click="openEmoticon" class="flex align-center justify-center" style="height: 90rpx;width: 90rpx;"><text class="iconfont font-lg">&#xe61f;</text></view>
+			<template v-if="text.length === 0">
+				<!-- 扩展菜单 -->
+				<view @click="openAction" class="flex align-center justify-center" style="height: 90rpx;width: 90rpx;"><text class="iconfont font-lg">&#xe81b;</text></view>
+			</template>
+			<template v-else>
+				<!-- 发送按钮 -->
+				<view class="send-color rounded mr-2 px-2 py-1" @click="send('text')"><text class="font-md text-white">发送</text></view>
+			</template>
+		</view>
+
+		<!-- 扩展菜单 -->
+		<free-popup ref="action" bottom transformOrigin="center bottom" @hide="KeyboardHeight = 0" :mask="false">
+			<view style="height: 580rpx;" class="border-top border-light-secondary bg-light">
+				<swiper :indicator-dots="true" style="height: 580rpx;">
+					<swiper-item class="row" v-for="(item, index) in actionList" :key="index">
+						<view
+							class="col-3 flex align-center justify-center"
+							style="height: 250rpx;flex-direction: column;"
+							v-for="(item2, index2) in item"
+							:key="index2"
+							@click="actionEvent(item2)"
+						>
+							<image :src="item2.icon" class="rounded" mode="widthFix" style="width: 120rpx;height: 120rpx;"></image>
+							<text class="font-sm text-muted mt-2">{{ item2.name }}</text>
+						</view>
+					</swiper-item>
+				</swiper>
+			</view>
+		</free-popup>
+
+		<!-- 表情 -->
+		<free-popup ref="emoticon" bottom transformOrigin="center bottom" @hide="KeyboardHeight = 0" :mask="false">
+			<view style="height: 580rpx;" class="border-top border-light-secondary bg-light">
+				<!-- 默认表情 -->
+				<view v-if="ShowEmoticon === 1" class="bg-blue">
+					<scroll-view show-scrollbar="true" scroll-y="true" style="height: 500rpx;width: 750rpx;">
+						<free-emoticon @getIndex="getIndex"></free-emoticon>
+					</scroll-view>
+				</view>
+				<!-- 大表情 -->
+				<swiper v-if="ShowEmoticon === 2" :indicator-dots="true" style="height: 500rpx;" class="bg-white">
+					<swiper-item class="row" v-for="(emoticonitem, emoticonindex) in emoticonList" :key="emoticonindex">
+						<view
+							class="col-3 flex align-center justify-center"
+							style="height: 250rpx;flex-direction: column;"
+							v-for="(item3, index3) in emoticonitem"
+							:key="index3"
+							@click="actionEvent(item3)"
+						>
+							<image :src="item3.icon" mode="widthFix" style="width: 120rpx;height: 120rpx;"></image>
+							<text class="font-sm text-muted mt-2">{{ item3.name }}</text>
+						</view>
+					</swiper-item>
+				</swiper>
+				<!-- 表情列表 -->
+				<view class="bg-white">
+					<scroll-view show-scrollbar="false" scroll-x="true" style="width: 750rpx;white-space: nowrap;display: flex;flex-direction: row;">
+						<!-- 默认表情 -->
+						<view class="bg-white flex justify-center align-center" style="width: 80rpx;height: 80rpx;" @click="bq1()">
+							<image src="/static/img/emoticon/douyin/0.png" style="width: 60rpx;height: 60rpx;"></image>
+						</view>
+						<!-- 自定义表情1 -->
+						<view class="px-1 py-1 bg-white" style="width: 80rpx;height: 80rpx;" @click="bq2()">
+							<image src="/static/img/emoticon/5497/17.gif" style="width: 60rpx;height: 60rpx;"></image>
+						</view>
+						<!-- 自定义表情2 -->
+						<!-- <view class="px-1 py-1 bg-white" style="width: 80rpx;height: 80rpx;">
+							<image src="/static/img/emoticon/5497/17.gif" style="width: 60rpx;height: 60rpx;"></image>
+						</view> -->
+					</scroll-view>
+				</view>
+			</view>
+		</free-popup>
+
+		<!-- 弹出层 -->
+		<!-- <free-popup ref="extend" :bodyWidth="240" :bodyHeight="getMenusHeight" :tabbarHeight="105"> -->
+		<free-popup ref="extend" :bodyWidth="240" :bodyHeight="450" :tabbarHeight="105">
+			<!-- <free-popup ref="extend" :bodyWidth="240" :bodyHeight="getMenusHeight" :tabbarHeight="55"> -->
+			<view class="flex" style="width: 540rpx;flex-direction: column;" :style="getMenusStyle">
+				<view class="flex-1 flex align-center" hover-class="bg-light" v-for="(item, index) in menusList" :key="index" @click="clickEvent(item.event)">
+					<text class="font-md pl-3">{{ item.name }}</text>
+				</view>
+			</view>
+		</free-popup>
+
+		<!-- 录音提示 -->
+		<view v-if="isRecording" class="position-fixed top-0 left-0 right-0 flex align-center justify-center" style="bottom: 105rpx;">
+			<view class="rounded flex align-center justify-center" style="flex-direction: column;width: 360rpx;height: 360rpx;background-color: rgba(0,0,0,0.5);">
+				<image v-if="!unRecord" src="/static/audio/recording.gif" style="width: 150rpx;height: 150rpx;"></image>
+				<image v-else src="/static/audio/withdraw.png" style="width: 150rpx;height: 150rpx;"></image>
+				<text class="font mt-3" :class="unRecord ? 'text-warning' : 'text-white'">{{ unRecord ? '松开手指，取消发送' : '手指上滑，取消发送' }}</text>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+// #ifdef APP-PLUS-NVUE
+const dom = weex.requireModule('dom');
+// #endif
+
+// 录音API
+const recorderManager = uni.getRecorderManager();
+import freeChatItem from '@/components/free-ui/free-chat-item.vue';
+import freeEmoticon from '@/components/free-ui/free-emoticon.vue';
+import freePopup from '@/components/free-ui/free-popup.vue';
+//引入表情模板
+import commen from '@/common/emoticon/emoticonlist';
+Vue.prototype.$commen = commen;
+import $guid from '@/common/free-lib/guid.js';
+import { mapState } from 'vuex';
+// 阿里云文件上传
+import OssUpload from '@/utils/UploadOss/OssUpload.js';
+export default {
+	onNavigationBarButtonTap: function(e) {
+		if (e.float == 'right') {
+			// console.log("右上角点击事件");
+			// 跳转到举报页面
+			uni.navigateTo({
+				url: '/pages/tabbar/find/Report?id='+getApp().$store.state.im.toUserId+'&module=2'
+			});
+		}
+	},
+	components: {
+		freeChatItem,
+		freeEmoticon,
+		freePopup
+	},
+	created() {
+		const domModule = weex.requireModule('dom');
+		domModule.addRule('fontFace', {
+		    fontFamily: 'iconfont',
+		    // src: "url('\https://at.alicdn.com/t/font_2618728_i20h01uvvpm.ttf?t=1626024357269\')"
+		    src: "url('\https://at.alicdn.com/t/font_2618728_exbfr2s01hi.ttf?t=1635345597024\')"
+		});
+	},
+	onLoad(options) {
+		this.ClientID = options.cid;
+		
+		// 调用测试
+		switch (uni.getSystemInfoSync().platform) {
+			case 'android':
+				console.log('运行Android上');
+				this.IsIOS = false;
+				break;
+			case 'ios':
+				console.log('运行iOS上');
+				this.IsIOS = true;
+				break;
+			default:
+				console.log('运行在开发者工具上');
+				this.IsIOS = false;
+				break;
+		}
+		// 动态修改标题
+		uni.setNavigationBarTitle({
+			title: options.name
+		});
+		
+		// 原onshow方法
+		this.imUserInfoList = uni.getStorageSync('imUserInfoList'); //获取IM用户资料
+		this.MyUserId = getApp().$store.state.im.MyUserId; //获取自己聊天编号
+		this.toUserID = getApp().$store.state.im.toUserId; //获取聊天对象编号
+		
+		console.log(this.MyUserId);
+		console.log(this.toUserID);
+		// this.TencentMessageList = getApp().$store.state.im.MsgList; //获取单聊消息列表 【】
+		let conversationID = 'C2C' + this.toUserID;
+		this.list = []; //清空聊天列表
+		this.TencentMessageList = []; //清空腾讯聊天记录
+		// 打开某个会话时，第一次拉取消息列表 获取15条消息
+		let promise = getApp().$tim.getMessageList({ conversationID: conversationID, count: 15 });
+		promise.then(imResponse => {
+			this.messageList = imResponse.data.messageList; // 消息列表。
+			// console.log(JSON.stringify(this.messageList));
+			this.$store.commit('InitMsgList', imResponse.data.messageList);
+			this.nextReqMessageID = imResponse.data.nextReqMessageID; // 用于续拉，分页续拉时需传入该字段。
+			this.isCompleted = imResponse.data.isCompleted; // 表示是否已经拉完所有消息。
+			console.log(this.isCompleted);
+		});
+		let ReadID = 'C2C' + this.toUserID;
+		// console.log(ReadID);//C2C5
+		//退出页面 将所有的会话内的消息设置为已读
+		let Readpromise = getApp().$tim.setMessageRead({ conversationID: ReadID });
+		Readpromise.then(imResponse => {
+			console.log('全部已读');
+			//调用上一个界面的消息列表刷新方法
+			// 发送页
+			uni.$emit('MsgRead', {});
+			// 已读上报成功
+		}).catch(imError => {
+			// 已读上报失败
+			console.warn('setMessageRead error:', imError);
+		});
+		
+	},
+	data() {
+		return {
+			imUserInfoList: '', //IM用户资料
+			ClientID: '', //推送CID
+			UserID: '',
+			loadState: false, //是否显示加载动画
+			messageList: [], //消息列表。
+			nextReqMessageID: '', // 用于续拉，分页续拉时需传入该字段。
+			isCompleted: false, // 表示是否已经拉完所有消息。
+			MyUserId: '', //自己的聊天编号
+			toUserID: '', //聊天对象编号
+			emojiList: this.$commen.emojiList, //表情包列表
+			// 显示表情
+			ShowEmoticon: 1, //显示第一个
+			emoticon1: true,
+			emoticon2: false,
+			// 模式 text输入文字，emoticon表情，action操作，audio音频
+			mode: 'text',
+			AudioStyle: '&#xe664;',
+			isfocus: false,
+			KeyOpenHeight: 0, //键盘展开高度
+			// 音频录制状态
+			isRecording: false,
+			RecordingStartY: 0,
+			// 取消录音
+			unRecord: false,
+			// 录音时长
+			RecordTime: 0,
+			// 录音定时器
+			RecordTimer: null,
+			// 表情列表
+			emoticonList: [
+				[
+					{
+						name: '沮丧',
+						icon: '/static/img/emoticon/5497/0.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '嫌弃',
+						icon: '/static/img/emoticon/5497/1.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '瑟瑟发抖',
+						icon: '/static/img/emoticon/5497/2.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '干杯',
+						icon: '/static/img/emoticon/5497/3.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '高兴',
+						icon: '/static/img/emoticon/5497/4.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '摸鱼',
+						icon: '/static/img/emoticon/5497/5.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '鬼脸',
+						icon: '/static/img/emoticon/5497/6.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '干杯吧',
+						icon: '/static/img/emoticon/5497/7.gif',
+						event: 'sendEmoticon'
+					}
+				],
+				[
+					{
+						name: '突突突',
+						icon: '/static/img/emoticon/5497/8.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '呕吐',
+						icon: '/static/img/emoticon/5497/9.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '嘿嘿',
+						icon: '/static/img/emoticon/5497/10.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '爱不爱我',
+						icon: '/static/img/emoticon/5497/11.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '开车',
+						icon: '/static/img/emoticon/5497/12.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '走一趟',
+						icon: '/static/img/emoticon/5497/13.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '多喝水',
+						icon: '/static/img/emoticon/5497/14.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '约吗',
+						icon: '/static/img/emoticon/5497/15.gif',
+						event: 'sendEmoticon'
+					}
+				],
+				[
+					{
+						name: '吃鸡腿',
+						icon: '/static/img/emoticon/5497/16.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '笑出猪叫',
+						icon: '/static/img/emoticon/5497/17.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '窗口抖动',
+						icon: '/static/img/emoticon/5497/18.gif',
+						event: 'sendEmoticon'
+					},
+					{
+						name: '超级么么哒',
+						icon: '/static/img/emoticon/5497/19.gif',
+						event: 'sendEmoticon'
+					}
+				]
+			],
+			// 扩展菜单列表
+			actionList: [
+				//第一页
+				[
+					{
+						name: '相册',
+						icon: '/static/img/extends/pic.png',
+						event: 'uploadImage'
+					},
+					{
+						name: '拍摄',
+						icon: '/static/img/extends/video.png',
+						event: 'uploadVideo'
+					},
+					{
+						name: '电话',
+						icon: '/static/img/extends/phone.png',
+						event: 'uploadPhone'
+					},
+					{
+						name: '位置',
+						icon: '/static/img/extends/path.png',
+						event: 'uploadAddress'
+					}
+					// ,
+					// {
+					// 	name: '任务',
+					// 	icon: '/static/img/extends/renwu.png',
+					// 	event: 'uploadTask'
+					// },
+					// {
+					// 	name: '材料清单',
+					// 	// icon: '/static/img/extends/audio.png',
+					// 	icon: '/static/img/extends/cailiaoqingdan.png',
+					// 	event: 'uploadMaterialList'
+					// },
+					// {
+					// 	name: '雇佣',
+					// 	icon: '/static/img/extends/guyong.png',
+					// 	event: 'uploadHire'
+					// },
+					// {
+					// 	name: '商城',
+					// 	icon: '/static/img/extends/shangchen.png',
+					// 	event: 'uploadShoppingMall'
+					// }
+					// {
+					// 	name: '收藏',
+					// 	icon: '/static/img/extends/shoucan.png',
+					// 	event: 'openFava'
+					// },
+					// {
+					// 	name: '名片',
+					// 	icon: '/static/img/extends/man.png',
+					// 	event: 'sendCard'
+					// },
+					// {
+					// 	name: '语音通话',
+					// 	icon: '/static/img/extends/phone.png',
+					// 	event: ''
+					// },
+					// {
+					// 	name: '位置',
+					// 	icon: '/static/img/extends/path.png',
+					// 	event: ''
+					// }
+				]
+				//第二页
+				// [
+				// 	{
+				// 		name: '相册',
+				// 		icon: '/static/img/extends/pic.png',
+				// 		event: 'uploadImage'
+				// 	},
+				// 	{
+				// 		name: '拍摄',
+				// 		icon: '/static/img/extends/video.png',
+				// 		event: 'uploadVideo'
+				// 	},
+				// 	{
+				// 		name: '收藏',
+				// 		icon: '/static/img/extends/shoucan.png',
+				// 		event: 'openFava'
+				// 	},
+				// 	{
+				// 		name: '名片',
+				// 		icon: '/static/img/extends/man.png',
+				// 		event: 'sendCard'
+				// 	},
+				// 	{
+				// 		name: '语音通话',
+				// 		icon: '/static/img/extends/phone.png',
+				// 		event: ''
+				// 	},
+				// 	{
+				// 		name: '位置',
+				// 		icon: '/static/img/extends/path.png',
+				// 		event: ''
+				// 	}
+				// ]
+			],
+			navBarHeight: 0,
+			KeyboardHeight: 0,
+			IsIOS: true,
+			text: '', //输入文字
+			propIndex: -1, //当前操作的气泡索引
+			// 长按菜单列表
+			menus: [
+				{
+					name: '复制',
+					event: 'Copy'
+				},
+				{
+					name: '撤回',
+					event: 'removeChatItem'
+				}
+				// {
+				// 	name: '转发',
+				// 	event: 'SendFriends'
+				// },
+				// {
+				// 	name: '收藏',
+				// 	event: 'Collection'
+				// }
+				// ,
+				// {
+				// 	name: '删除',
+				// 	event: 'Delete'
+				// }
+				// ,
+				// {
+				// 	name: '多选',
+				// 	event: 'MultipleChoice'
+				// }
+			],
+			// 聊天数据
+			list: [],
+			TencentMessageList: [] //腾讯云聊天列表数据
+			// MsgList:[]//腾讯云聊天列表数据全局变量
+		};
+	},
+	methods: {
+		// 初始化聊天数据
+		InitData(item) {
+			// console.log(JSON.stringify(item));
+			console.log(JSON.stringify(this.imUserInfoList));
+			item.forEach(listitem => {
+				this.imUserInfoList.forEach(item1 => {
+					if (item1.userID === listitem.from) {
+						if (listitem._elements[0].type === 'TIMCustomElem') {
+							//自定义消息
+							if (listitem._elements[0].content.data === 'location') {
+								//位置
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'location', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //详细地址
+									options: {
+										LocationAddress: listitem._elements[0].content.extension //音频时长
+									},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false,
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								this.list.push(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'audio') {
+								//音频
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'audio', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {
+										time: listitem._elements[0].content.extension //音频时长
+									},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false,
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								this.list.push(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'video') {
+								//视频
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'video', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {
+										poster: listitem._elements[0].content.extension //视频封面
+									},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								this.list.push(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'image') {
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'image', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								this.list.push(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'emoticon') {
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'emoticon', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								this.list.push(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'task') {
+								let avatar = '';
+								if (this.toUserID == 'administrator') {
+									avatar = '/static/img/logo.png';
+								} else {
+									avatar = item1.avatar;
+								}
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'task', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								this.list.push(ChatItem);
+							}
+						} else {
+							//文本消息
+							var ChatItem = {
+								ID: listitem.ID, //用来做定位
+								avatar: item1.avatar, //头像
+								user_id: listitem.from, //userid
+								nickname: item1.nick, //昵称
+								type: 'text', //image,audio,video,file,share 消息类型
+								data: listitem.payload.text, //数据
+								create_time: listitem.time, //创建时间(时间戳)
+								isremove: listitem.isRevoked, //是否撤回消息 默认false
+								isPeerRead: listitem.isPeerRead //是否已读消息
+							};
+							this.list.push(ChatItem);
+						}
+					}
+				});
+			});
+			// 将某会话下所有未读消息已读上报
+			let ReadID = 'C2C' + this.toUserID;
+			//加载页面 将所有的会话内的消息设置为已读
+			let Readpromise = getApp().$tim.setMessageRead({ conversationID: ReadID });
+			Readpromise.then(imResponse => {
+				console.log('全部已读');
+				//调用上一个界面的消息列表刷新方法
+				// 发送页
+				uni.$emit('MsgRead', {});
+				// 已读上报成功
+			}).catch(imError => {
+				// 已读上报失败
+				console.warn('setMessageRead error:', imError);
+			});
+			//将消息置于底部 代码优化
+			var InitToBottomTimer = setTimeout(() => {
+				this.pageToBottom();
+				clearTimeout(InitToBottomTimer);
+			}, 500);
+		},
+		loadHistory(e) {
+			
+			// 继续加载数据
+			// this.loadState = true; //显示加载动画
+			// this.LoadData();
+			// 判断消息是否已经拉取完成
+			console.log('滚动到顶部了！');
+			console.log(this.isCompleted)
+			if (!this.isCompleted) {
+				
+				this.loadState = true; //显示加载动画
+				// 继续加载数据
+				this.LoadData();
+			}
+		},
+		// 分页续拉数据
+		LoadData() {
+			// 打开某个会话时，第一次拉取消息列表 获取15条消息
+			let conversationID = 'C2C' + this.toUserID;
+			let nextReqMessageID = this.nextReqMessageID;
+			let promise = getApp().$tim.getMessageList({ conversationID: conversationID, nextReqMessageID, count: 15 });
+			promise.then(imResponse => {
+				this.loadState = false; //关闭加载动画
+				const messageList = imResponse.data.messageList; // 消息列表。
+				console.log(JSON.stringify(messageList));
+				
+				this.nextReqMessageID = imResponse.data.nextReqMessageID; // 用于续拉，分页续拉时需传入该字段。
+				this.isCompleted = imResponse.data.isCompleted; // 表示是否已经拉完所有消息。
+				
+				this.PagePullData(messageList);
+			});
+		},
+		//下拉追加数据
+		PagePullData(item) {
+			this.propIndex = -1;
+			var ChatObjArr = this.list;
+			item.forEach(listitem => {
+				this.TencentMessageList.unshift(listitem); //同步腾讯云消息列表
+				this.imUserInfoList.forEach(item1 => {
+					if (item1.userID === listitem.from) {
+						if (listitem._elements[0].type === 'TIMCustomElem') {
+							//自定义消息
+							if (listitem._elements[0].content.data === 'location') {
+								//位置
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'location', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //详细地址
+									options: {
+										LocationAddress: listitem._elements[0].content.extension //经纬度
+									},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false,
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								ChatObjArr.unshift(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'audio') {
+								//音频
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'audio', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {
+										time: listitem._elements[0].content.extension //音频时长
+									},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false,
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								ChatObjArr.unshift(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'video') {
+								//视频
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'video', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {
+										poster: listitem._elements[0].content.extension //视频封面
+									},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								ChatObjArr.unshift(ChatItem);
+							}
+							if (listitem._elements[0].content.data === 'image') {
+								var ChatItem = {
+									ID: listitem.ID, //用来做定位
+									avatar: item1.avatar, //头像
+									user_id: listitem.from, //userid
+									nickname: item1.nick, //昵称
+									type: 'image', //image,audio,video,file,share 消息类型
+									data: listitem._elements[0].content.description, //数据
+									options: {},
+									create_time: listitem.time, //创建时间(时间戳)
+									isremove: listitem.isRevoked, //是否撤回消息 默认false
+									isPeerRead: listitem.isPeerRead //是否已读消息
+								};
+								ChatObjArr.unshift(ChatItem);
+							}
+						} else {
+							//文本消息
+							var ChatItem = {
+								ID: listitem.ID, //用来做定位
+								avatar: item1.avatar, //头像
+								user_id: listitem.from, //userid
+								nickname: item1.nick, //昵称
+								type: 'text', //image,audio,video,file,share 消息类型
+								data: listitem.payload.text, //数据
+								create_time: listitem.time, //创建时间(时间戳)
+								isremove: listitem.isRevoked, //是否撤回消息 默认false
+								isPeerRead: listitem.isPeerRead //是否已读消息
+							};
+							ChatObjArr.unshift(ChatItem);
+						}
+					}
+				});
+			});
+			// this.list = []; //清空列表
+			// // 重新赋值
+			// setTimeout(() => {
+			// 	this.list = ChatObjArr;
+			// }, 100);
+		},
+		getIndex(e) {
+			// console.log(e)
+			this.text += e;
+		},
+		bq1() {
+			// console.log("表情1");
+			this.ShowEmoticon = 1;
+		},
+		bq2() {
+			// console.log("表情2");
+			this.ShowEmoticon = 2;
+		},
+		// 切换为文本
+		SwitchText() {
+			this.mode = 'text';
+			this.KeyboardHeight = this.KeyOpenHeight;
+			setTimeout(() => {
+				this.$refs.input.focus(); //主动让键盘获取焦点
+			}, 10);
+		},
+		// 切换为音频
+		SwitchAudio() {
+			// 设置为默认表情显示
+			this.ShowEmoticon = 1;
+			this.mode = 'audio';
+			this.$refs.action.hide();
+			this.$refs.emoticon.hide();
+			uni.hideKeyboard(); //隐藏软键盘
+		},
+		// 聊天框获取焦点事件
+		focusInput() {
+			this.mode = 'text';
+			// console.log("获取焦点");
+		},
+		// 录音相关开始
+		// 触摸开始（录音开始）
+		voiceTouchStart(e) {
+			this.isRecording = true;
+			// 初始化Y坐标
+			this.RecordingStartY = e.changedTouches[0].screenY;
+			this.unRecord = false; //录音状态
+			// 开始录音
+			recorderManager.start({
+				format: 'mp3'
+			});
+		},
+		// 触摸结束
+		voiceTouchEnd() {
+			this.isRecording = false;
+			// 停止录音
+			recorderManager.stop();
+		},
+		// 触摸中断(比如突然来了一个电话)
+		voiceTouchCancel() {
+			this.isRecording = false;
+			// 取消发送
+			this.unRecord = true;
+			// 停止录音
+			recorderManager.stop();
+		},
+		// 手指移动
+		voiceTouchMove(e) {
+			let Y = Math.abs(e.changedTouches[0].screenY - this.RecordingStartY);
+			// 判断移动的Y坐标大于50取消发送
+			this.unRecord = Y >= 50;
+		},
+		// 音频发送
+		AudioSend(url) {
+			// 发送
+			this.send('audio', url, {
+				time: this.RecordTime //音频时长
+			});
+		},
+		// 图片发送
+		ImagesSend(url) {
+			url.forEach(item => {
+				console.log(item);
+				// 发送
+				this.send('image', item);
+			});
+		},
+		// 视频发送
+		VideoSemd(url) {
+			this.send('video', url, {
+				poster: url + '?x-oss-process=video/snapshot,t_0,f_png,w_0,h_0,m_fast,ar_auto'
+			});
+		},
+		// 录音相关结束
+		// 点击页面
+		clickPage() {
+			this.mode = '';
+			// 设置为默认表情显示
+			this.ShowEmoticon = 1;
+		},
+		// 打开扩展菜单
+		openAction() {
+			// 设置为默认表情显示
+			this.ShowEmoticon = 1;
+			if (this.mode === 'action') {
+				this.$refs.action.hide();
+				this.$refs.emoticon.hide();
+				this.$refs.input.focus(); //主动让键盘获取焦点
+				this.KeyboardHeight = this.KeyOpenHeight;
+				return;
+			}
+			if (this.mode === 'text') {
+				this.$refs.input.blur(); //主动让键盘失去焦点
+			}
+			this.mode = 'action';
+			// this.$refs.input.blur();//主动让键盘失去焦点
+			setTimeout(() => {
+				this.$refs.action.show();
+				uni.hideKeyboard(); //隐藏软键盘
+				this.KeyboardHeight = uni.upx2px(580);
+			}, 50);
+			setTimeout(() => {
+				this.pageToBottom(); //消息滚动到底部
+			}, 60);
+		},
+		// 打开表情
+		openEmoticon() {
+			// 设置为默认表情显示
+			this.ShowEmoticon = 1;
+			if (this.mode === 'emoticon') {
+				this.$refs.action.hide();
+				this.$refs.emoticon.hide();
+				this.$refs.input.focus(); //主动让键盘获取焦点
+				this.KeyboardHeight = this.KeyOpenHeight;
+				return;
+			}
+			if (this.mode === 'text') {
+				this.$refs.input.blur(); //主动让键盘失去焦点
+			}
+			this.mode = 'emoticon';
+			this.$refs.action.hide();
+			setTimeout(() => {
+				this.$refs.emoticon.show();
+				uni.hideKeyboard(); //隐藏软键盘
+				this.KeyboardHeight = uni.upx2px(580);
+			}, 50);
+			setTimeout(() => {
+				this.pageToBottom(); //消息滚动到底部
+			}, 60);
+		},
+		// 扩展菜单
+		actionEvent(e) {
+			var _self = this;
+			// console.log(JSON.stringify(e))
+			switch (e.event) {
+				case 'sendEmoticon': // 发送表情包
+					this.send('emoticon', e.icon);
+					console.log('发送表情包');
+					break;
+				case 'uploadImage': // 选择相册
+					console.log('选择相册');
+
+					uni.chooseImage({
+						count: 9, //最多可以选择的图片张数，默认9
+						// sizeType: ['original', 'compressed'], //original 原图，compressed 压缩图，默认二者都有
+						sizeType: ['compressed'], //original 原图，compressed 压缩图，默认二者都有
+						sourceType: ['album', 'camera'], //album 从相册选图，camera 使用相机，默认二者都有。如需直接开相机或直接选相册，请只使用一个选项
+						success: res => {
+							//成功则返回图片的本地文件路径列表 tempFilePaths
+
+							// 上传阿里云开始
+							var ImgSplits = JSON.stringify(res.tempFilePaths).split(',');
+							var ImgSplit = JSON.parse(ImgSplits);
+							// console.log(ImgSplit);
+							var uploads = [];
+							for (let k = 0; k < ImgSplit.length; k++) {
+								let imgSrc = ImgSplit[k];
+								let pos = imgSrc.lastIndexOf('.');
+								let filename = imgSrc.substring(0, pos); // 文件名
+								let extendName = imgSrc.substring(pos + 1).toLowerCase(); // 扩展名
+								var date = new Date();
+								var year = date.getFullYear();
+								var month = date.getMonth() + 1;
+								var day = date.getDate();
+								if (day < 10) {
+									day = '0' + day;
+								}
+								if (month < 10) {
+									month = '0' + month;
+								}
+								var FileName = year + '' + month + '' + day + '' + new Date().getTime() + k + '.' + extendName; //202003021583151162210.jpg
+								var fuleFileName = 'im' + '/' + date.getFullYear() + '/' + month + '/' + FileName;
+								console.log(fuleFileName);
+								var SuccessUrlImg = OssUpload.fileUploadBack('image', imgSrc, fuleFileName);
+								uploads.push(SuccessUrlImg);
+							}
+							Promise.all(uploads).then(response => {
+								console.log(JSON.stringify(response));
+								// 调用图片发送方法
+								this.ImagesSend(response);
+							});
+						}
+					});
+					break;
+				case 'uploadVideo': // 发送短视频
+					console.log('发送短视频');
+
+					uni.chooseVideo({
+						count: 1,
+						sourceType: ['camera', 'album'],
+						maxDuration: 15,
+						success: res => {
+							// 上传阿里云开始
+							let videoSrc = res.tempFilePath;
+							let pos = videoSrc.lastIndexOf('.');
+							let filename = videoSrc.substring(0, pos); // 文件名
+							let extendName = videoSrc.substring(pos + 1).toLowerCase(); // 扩展名
+							var date = new Date();
+							var year = date.getFullYear();
+							var month = date.getMonth() + 1;
+							var day = date.getDate();
+							if (day < 10) {
+								day = '0' + day;
+							}
+							if (month < 10) {
+								month = '0' + month;
+							}
+							var FileName = year + '' + month + '' + day + '' + new Date().getTime() + '.' + extendName; //202003021583151162210.mp4
+							var fuleFileName = 'im' + '/' + date.getFullYear() + '/' + month + '/' + FileName;
+							//视频上传阿里云
+							var SuccessUrlVideo = OssUpload.videoUploadBack('video', videoSrc, fuleFileName);
+							SuccessUrlVideo.then(response => {
+								console.log(response); //上传成功的回调
+								// // 调用视频发送方法
+								this.VideoSemd(response);
+							});
+						}
+					});
+					break;
+				case 'uploadPhone': // 拨打电话
+					if (uni.getSystemInfoSync().platform == 'ios') {
+						uni.makePhoneCall({
+							// 手机号
+							phoneNumber: this.toUserID,
+							// 成功回调
+							success: res => {
+								console.log('调用成功!');
+							},
+							// 失败回调
+							fail: res => {
+								console.log('调用失败!');
+							}
+						});
+					}
+					if (uni.getSystemInfoSync().platform == 'android') {
+						uni.showModal({
+							title: '提示',
+							content: '呼叫' + this.toUserID,
+							success: res=> {
+								if (res.confirm) {
+									uni.makePhoneCall({
+										// 手机号
+										phoneNumber: this.toUserID,
+										// 成功回调
+										success: res => {
+											console.log('调用成功!');
+										},
+										// 失败回调
+										fail: res => {
+											console.log('调用失败!');
+										}
+									});
+								} else if (res.cancel) {
+									console.log('用户点击取消');
+								}
+							}
+						});
+					}
+					break;
+				case 'uploadAddress': // 发送位置
+					// console.log('发送位置');
+					plus.nativeUI.actionSheet(
+						{
+							cancel: '取消',
+							buttons: [
+								{
+									title: '发送位置'
+								}
+							]
+						},
+						function(e) {
+							switch (e.index) {
+								case 0:
+									// console.log("取消");
+									break;
+								case 1:
+									console.log("发送位置");
+									uni.chooseLocation({
+										type: 'gcj02',
+										success: res => {
+											console.log('位置名称：' + res.name);
+											console.log('详细地址：' + res.address);
+											console.log('经度：' + res.longitude);
+											console.log('纬度：' + res.latitude);
+											
+											let AddressListInfo = res.name+','+res.address;
+											// 经纬度
+											let LocationAddressSplicing = res.longitude+','+res.latitude;
+											// console.log(AddressListInfo)
+											// console.log(LocationAddressSplicing)
+											// 经度,纬度
+											// console.log('经度：' + LocationAddressSplicing.split(',')[0]);
+											// console.log('纬度：' + LocationAddressSplicing.split(',')[1]);
+											
+											_self.send('location', AddressListInfo, {
+												LocationAddress: LocationAddressSplicing //经纬度
+											});
+										},
+										fail: function() {
+											console.log("定位失败");
+										}
+									});
+									
+									break;
+							}
+						}
+					);
+					
+					break;
+				case 'uploadTask': // 任务// 跳转到店铺主页
+					uni.navigateTo({
+						url: '/pages/tabBar/message/NavMenu/demand'
+					});
+					break;
+				case 'uploadMaterialList': // 材料清单
+					console.log('材料清单');
+					break;
+				case 'uploadHire': // 雇佣
+					break;
+				case 'uploadShoppingMall': // 商城
+					break;
+				// 下面是扩展功能 暂时未用
+				case 'openFava': // 发送收藏
+					console.log('发送收藏');
+					break;
+				case 'sendCard': // 发送名片
+					console.log('发送名片');
+					break;
+			}
+		},
+		// 长按消息气泡
+		long({ x, y, index }) {
+			console.log(index);
+			// 初始化 索引
+			this.propIndex = index;
+			// 显示扩展菜单
+			this.$refs.extend.show(x, y);
+		},
+		// 预览图片
+		previewImage(url) {
+			uni.previewImage({
+				current: url,
+				urls: this.imageList,
+				indicator: 'number'
+			});
+		},
+		// 操作菜单方法分发
+		clickEvent(event) {
+			switch (event) {
+				case 'removeChatItem': //撤回消息
+					// 拿到当前被操作的信息
+					// console.log(JSON.stringify(this.list[this.propIndex]))
+					var actionbuttons = [{ title: '确定', style: 'destructive' }];
+					var actionstyle = { title: '是否撤回该条消息？', cancel: '取消', buttons: actionbuttons };
+					plus.nativeUI.actionSheet(actionstyle, e => {
+						console.log('User pressed: ' + e.index);
+						if (e.index === 1) {
+							//获取被撤回的数据
+							var currentMsg = {};
+							this.TencentMessageList.forEach(item => {
+								if (item.ID === this.list[this.propIndex].ID) {
+									currentMsg = item;
+								}
+							});
+							// 判断消息是文本还是自定义消息类型
+							let message;
+							if (currentMsg.type === 'TIMTextElem') {
+								// 1. 创建文本消息实例
+								message = getApp().$tim.createTextMessage(currentMsg);
+							}
+							if (currentMsg.type === 'TIMCustomElem') {
+								//1. 创建自定义消息实例
+								message = getApp().$tim.createCustomMessage(currentMsg);
+							}
+							// 2. 撤回消息
+							let promise = getApp().$tim.revokeMessage(message);
+							promise
+								.then(imResponse => {
+									console.log('成功:', imResponse);
+									// 消息撤回成功
+									if (this.propIndex > -1) {
+										this.list[this.propIndex].isremove = true;
+									}
+								})
+								.catch(imError => {
+									// 消息撤回失败
+									console.log('失败原因:', imError);
+
+									uni.showToast({
+										title: '该消息超过撤回时间，不能被撤回。',
+										duration: 2000,
+										icon: 'none'
+									});
+								});
+						}
+					});
+					break;
+				case 'Copy': //复制
+					// 拿到当前被操作的信息
+					if (this.propIndex > -1) {
+						var textInfo = this.list[this.propIndex].data;
+						uni.setClipboardData({
+							data: textInfo
+						});
+						uni.showToast({
+							title: '复制成功',
+							icon: 'none',
+							duration: 2000
+						});
+					}
+					break;
+				default:
+					break;
+			}
+			// 关闭菜单
+			this.$refs.extend.hide();
+		},
+		// 回到底部
+		pageToBottom() {
+			// #ifdef APP-PLUS-NVUE
+			let chatItem = this.$refs.chatItem;
+			let lastIndex = chatItem.length > 0 ? chatItem.length - 1 : 0;
+			if (chatItem[lastIndex]) {
+				dom.scrollToElement(chatItem[lastIndex], {});
+			}
+			// #endif
+		},
+		PushMsg(title, body) {
+			// 推送
+			// 步骤一:拿到对方的CID？
+			console.log('对方的CID' + this.ClientID);
+
+			var postDatas = {
+				request_id: $guid(32, false, 10),
+				settings: {
+					ttl: 3600000,
+					strategy: {
+						default: 1,
+						ios: 4,
+						st: 1
+					}
+				},
+				audience: {
+					cid: [
+						// "820bd4d3030f5ff341d47a38a7efe9fa"
+						'' + this.ClientID + ''
+					]
+				},
+				push_message: {
+					// transmission: '请填写你的透传消息内容'
+					notification:{
+						title:title,
+						body:body,
+						click_type:"url",
+						url:"https//:xxx"
+					}
+				},
+				push_channel: {
+					ios: {
+						type: 'notify',
+						payload: '自定义消息',
+						aps: {
+							alert: {
+								// "title":"张三",
+								// "body":"给您发送了一条消息"
+								title: title,
+								body: body
+							},
+							'content-available': 0,
+							sound: 'com.gexin.ios.silence',
+							category: 'ACTIONABLE'
+						},
+						// "auto_badge":"+1",
+						multimedia: [
+							{
+								url: 'https://xxx',
+								type: 1,
+								only_wifi: false
+							}
+						]
+					}
+				}
+			};
+			console.log(JSON.stringify(postDatas))
+
+			// 向单个用户推送消息，可根据cid指定用户
+			uni.request({
+				url: 'https://restapi.getui.com/v2/zDUz4ZRTTA99XCM41DwZR6/push/single/cid', //执行cid单推token
+				data: postDatas,
+				method: 'POST',
+				header: {
+					token: uni.getStorageSync('GeTuiToken'), //
+					'content-type': 'application/json;charset=utf-8' //自定义请求头信息
+				},
+				success: res => {
+					console.log(JSON.stringify(res.data));
+				}
+			});
+
+		},
+		// 发送
+		send(type, data = '', options = {}) {
+			// var sendfirend = this.$store.state.im.toUserId;//聊天对象id
+			// console.log(sendfirend)
+
+			// 发送文字
+			var time = new Date().getTime(); //获取当前时间戳
+			var obj = {
+				ID: '', //编号
+				avatar: uni.getStorageSync('avatar'),
+				// avatar:'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1735490596,2760195857&fm=26&gp=0.jpg',
+				user_id: this.MyUserId, //自己的UserID
+				nickname: uni.getStorageSync('nickname'),
+				type: type, //text,image,audio,video,emoticon, file,share
+				data: data,
+				options: options,
+				create_time: time, //创建时间
+				isremove: false, //是否撤回消息
+				isPeerRead: false //是否已读
+			};
+			switch (type) {
+				case 'location':
+					let locationmessage = getApp().$tim.createCustomMessage({
+						to: this.toUserID,
+						conversationType: getApp().$TIM.TYPES.CONV_C2C,
+						payload: {
+							data: 'location', // 用于标识该消息是骰子类型消息
+							description: obj.data, // 详细地址
+							extension: '' + obj.options.LocationAddress + '' //经纬度
+						}
+					});
+					// 3. 发送消息
+					let locationpromise = getApp().$tim.sendMessage(locationmessage);
+					locationpromise
+						.then(imResponse => {
+							// 发送成功
+							console.log(imResponse);
+							this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
+							obj.ID = imResponse.data.message.ID;
+							this.PushMsg(obj.nickname, '[位置]');
+						})
+						.catch(imError => {
+							// 发送失败
+							console.warn('sendMessage error:', imError);
+						});
+					break;
+				case 'text':
+					obj.data = this.text;
+					// 1. 创建消息实例，接口返回的实例可以上屏
+					let message = getApp().$tim.createTextMessage({
+						to: this.toUserID,
+						conversationType: getApp().$TIM.TYPES.CONV_C2C,
+						payload: {
+							text: obj.data
+						}
+					});
+					// 2. 发送消息
+					let promise = getApp().$tim.sendMessage(message);
+					promise.then(imResponse => {
+						// 发送成功
+						// console.log(imResponse);
+						this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
+						obj.ID = imResponse.data.message.ID;
+						console.log('发送成功');
+						console.log(JSON.stringify(obj));
+						this.PushMsg(obj.nickname, obj.data);
+					})
+					.catch(imError => {
+						// 发送失败
+						console.warn('sendMessage error:', imError);
+					});
+					break;
+				// case 'emoticon':
+				// 	obj.data = data;
+				// 	break;
+				// case 'image':
+				// 	obj.data = data;
+				// 	break;
+				case 'audio':
+					let audiomessage = getApp().$tim.createCustomMessage({
+						to: this.toUserID,
+						conversationType: getApp().$TIM.TYPES.CONV_C2C,
+						payload: {
+							data: 'audio', // 用于标识该消息是骰子类型消息
+							description: obj.data, // 音频的路径
+							extension: '' + obj.options.time + '' //音频时长
+						}
+					});
+					// 3. 发送消息
+					let audiopromise = getApp().$tim.sendMessage(audiomessage);
+					audiopromise
+						.then(imResponse => {
+							// 发送成功
+							console.log(imResponse);
+							this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
+							obj.ID = imResponse.data.message.ID;
+							this.PushMsg(obj.nickname, '[语音]');
+						})
+						.catch(imError => {
+							// 发送失败
+							console.warn('sendMessage error:', imError);
+						});
+					break;
+				case 'image':
+					let imagemessage = getApp().$tim.createCustomMessage({
+						to: this.toUserID,
+						conversationType: getApp().$TIM.TYPES.CONV_C2C,
+						payload: {
+							data: 'image', // 用于标识该消息是骰子类型消息
+							description: obj.data, // 图片的路径
+							extension: '' //自定义消息的扩展字段
+						}
+					});
+					// 3. 发送消息
+					let imagepromise = getApp().$tim.sendMessage(imagemessage);
+					imagepromise
+						.then(imResponse => {
+							// 发送成功
+							console.log(imResponse);
+							this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
+							obj.ID = imResponse.data.message.ID;
+							this.PushMsg(obj.nickname, '[图片]');
+						})
+						.catch(imError => {
+							// 发送失败
+							console.warn('sendMessage error:', imError);
+						});
+					break;
+				case 'video':
+					let videomessage = getApp().$tim.createCustomMessage({
+						to: this.toUserID,
+						conversationType: getApp().$TIM.TYPES.CONV_C2C,
+						payload: {
+							data: 'video', // 用于标识该消息是骰子类型消息
+							description: obj.data, // 视频的路径
+							extension: '' + obj.options.poster + '' //视频封面图
+						}
+					});
+					// 3. 发送消息
+					let videopromise = getApp().$tim.sendMessage(videomessage);
+					videopromise
+						.then(imResponse => {
+							// 发送成功
+							console.log(imResponse);
+							this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
+							obj.ID = imResponse.data.message.ID;
+							this.PushMsg(obj.nickname, '[视频]');
+						})
+						.catch(imError => {
+							// 发送失败
+							console.warn('sendMessage error:', imError);
+						});
+					break;
+				case 'emoticon':
+					let emoticonmessage = getApp().$tim.createCustomMessage({
+						to: this.toUserID,
+						conversationType: getApp().$TIM.TYPES.CONV_C2C,
+						payload: {
+							data: 'emoticon', // 用于标识该消息是骰子类型消息
+							description: obj.data, // 图片的路径
+							extension: '' //自定义消息的扩展字段
+						}
+					});
+					// 3. 发送消息
+					let emoticonpromise = getApp().$tim.sendMessage(emoticonmessage);
+					emoticonpromise
+						.then(imResponse => {
+							// 发送成功
+							console.log(imResponse);
+							this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
+							obj.ID = imResponse.data.message.ID;
+							this.PushMsg(obj.nickname, obj.data);
+						})
+						.catch(imError => {
+							// 发送失败
+							console.warn('sendMessage error:', imError);
+						});
+					break;
+				
+				default:
+					obj.data = data;
+					break;
+			}
+
+			this.list.push(obj);
+
+			if (type === 'text') {
+				this.text = ''; //清空输入文本框
+			}
+			// 解决IOS发送没有置于底部 代码优化
+			var pageToBottomTimer = setTimeout(() => {
+				this.pageToBottom();
+				clearTimeout(pageToBottomTimer);
+			}, 200);
+		}
+	},
+	mounted() {
+		var statusBarHeight = 0;
+		// #ifdef APP-PLUS-NVUE
+		statusBarHeight = plus.navigator.getStatusbarHeight();
+		// #endif
+		this.navBarHeight = statusBarHeight;
+		// 监听键盘高度变化
+		uni.onKeyboardHeightChange(res => {
+			switch (uni.getSystemInfoSync().platform) {
+				case 'android':
+					if (this.mode !== 'action' && this.mode !== 'emoticon') {
+						this.KeyboardHeight = res.height;
+						// this.KeyboardHeight = res.height - uni.upx2px(90);
+					}
+					//滚动到底部
+					if (this.KeyboardHeight > 0) {
+						this.pageToBottom();
+					}
+					break;
+				case 'ios':
+					try {
+						const getinfo = uni.getSystemInfoSync();
+						if (getinfo.model == 'iPhoneXSMax') {
+							if (res.height === 0) {
+								this.KeyboardHeight = 0;
+							} else {
+								this.KeyOpenHeight = res.height - uni.upx2px(62);
+								if (this.mode !== 'action' && this.mode !== 'emoticon') {
+									this.KeyboardHeight = res.height - uni.upx2px(62);
+								}
+								setTimeout(() => {
+									//滚动到底部
+									this.pageToBottom();
+								}, 50);
+							}
+						} else {
+							if (res.height > 0) {
+								this.KeyOpenHeight = res.height;
+							}
+							this.KeyboardHeight = res.height;
+							//滚动到底部
+							if (this.KeyboardHeight > 0) {
+								setTimeout(() => {
+									//滚动到底部
+									this.pageToBottom();
+								}, 70);
+							}
+						}
+					} catch (e) {
+						console.log(e);
+					}
+					break;
+				default:
+					if (this.mode !== 'action' && this.mode !== 'emoticon') {
+						this.KeyboardHeight = res.height;
+					}
+					//滚动到底部
+					if (this.KeyboardHeight > 0) {
+						this.pageToBottom();
+					}
+					break;
+			}
+		});
+
+		// 监听录音开始
+		recorderManager.onStart(e => {
+			this.RecordTime = 0;
+			this.RecordTimer = setInterval(() => {
+				this.RecordTime += 1;
+			}, 1000);
+		});
+
+		// 监听录音结束
+		recorderManager.onStop(e => {
+			if (this.RecordTimer) {
+				//判断定时器是否存在
+				clearInterval(this.RecordTimer); //清除定时器
+				this.RecordTimer = null;
+			}
+			if (!this.unRecord) {
+				if (this.RecordTime >= 1) {
+					console.log(this.RecordTime);
+					if (this.RecordTime >= 59) {
+						//关闭录音提示模态框
+						this.isRecording = false;
+						// 停止录音
+						recorderManager.stop();
+						setTimeout(() => {
+							uni.showToast({
+								title: '录音时长最多一分钟',
+								duration: 2000,
+								icon: 'none'
+							});
+						}, 100);
+					}
+
+					// 上传阿里云开始
+					console.log(e.tempFilePath);
+					var date = new Date();
+					var year = date.getFullYear();
+					var month = date.getMonth() + 1;
+					var day = date.getDate();
+					if (day < 10) {
+						day = '0' + day;
+					}
+					if (month < 10) {
+						month = '0' + month;
+					}
+					var FileName = year + '' + month + '' + day + '' + new Date().getTime() + '.mp3'; //202003021583151162210.jpg
+					var fuleFileName = 'im' + '/' + date.getFullYear() + '/' + month + '/' + FileName; //上传地址
+					console.log(fuleFileName);
+					var uploads = [];
+					var SuccessUrlAudio = OssUpload.audioUploadBack('audio', e.tempFilePath, fuleFileName);
+					uploads.push(SuccessUrlAudio);
+					Promise.all(uploads).then(response => {
+						// uni.hideLoading(); //隐藏发表中
+						console.log(response);
+						console.log(response[0]); //返回阿里云上传成功的地址
+
+						// 调用音频发送方法
+						this.AudioSend(response[0]); //第一个是本地地址，第二个是上传到阿里云的地址
+						// this.AudioSend(e.tempFilePath,response[0]);//第一个是本地地址，第二个是上传到阿里云的地址
+					});
+					// 上传阿里云结束
+				} else {
+					uni.showToast({
+						title: '录音时间太短',
+						icon: 'none',
+						duration: 2000
+					});
+				}
+			}
+		});
+	},
+	computed: {
+		...mapState({
+			MsgList: state => state.im.MsgList,
+			// AddMsgList: state => state.im.AddMsgList,
+			currentMessageList: state => state.im.currentMessageList,
+			MessageReadList: state => state.im.MessageReadList,
+			MessageRevoke: state => state.im.MessageRevoke
+		}),
+		// 计算蒙版的位置
+		maskBottom() {
+			var MaskHeight = 0;
+			try {
+				const getinfo = uni.getSystemInfoSync();
+				if (getinfo.model == 'iPhoneXSMax') {
+					MaskHeight = this.KeyboardHeight + uni.upx2px(105) + uni.upx2px(62);
+				} else {
+					MaskHeight = this.KeyboardHeight + uni.upx2px(105);
+				}
+			} catch (e) {
+				console.log(e);
+			}
+			return MaskHeight;
+		},
+		// 动态获取菜单高度
+		getMenusHeight() {
+			let H = 100;
+			// let H = 60;
+			return this.menus.length * H;
+		},
+		// 获取菜单的样式
+		getMenusStyle() {
+			return `height: ${this.getMenusHeight}rpx;`;
+		},
+		// 聊天区域bottom
+		chatBodyBottom() {
+			return `bottom:${uni.upx2px(105) + this.KeyboardHeight}px;`;
+		},
+		// 判断是否操作本人信息
+		isdoSelf() {
+			// 获取本人id
+			let id = this.MyUserId;
+			let user_id = this.propIndex > -1 ? this.list[this.propIndex].user_id : 0;
+			return user_id === id;
+		},
+		// 判断当前是否是复制文本操作
+		isdoType() {
+			//获取当前类型
+			let type = this.propIndex > -1 ? this.list[this.propIndex].type : 0;
+			return type === 'text';
+		},
+		//菜单列表
+		menusList() {
+			return this.menus.filter(v => {
+				// 撤回功能判断
+				if (v.name === '撤回' && !this.isdoSelf) {
+					return false;
+				}
+				// 复制功能判断
+				else if (v.name === '复制' && !this.isdoType) {
+					return false;
+				} else {
+					return true;
+				}
+			});
+		},
+		// 所有信息的图片地址
+		imageList() {
+			let ImageArray = [];
+			this.list.forEach(item => {
+				if (item.type === 'emoticon' || item.type === 'image') {
+					ImageArray.push(item.data);
+				}
+			});
+			return ImageArray;
+		}
+	},
+	watch: {
+		messageList(newVal, oldVal) {
+			this.InitData(newVal);
+		},
+		currentMessageList(newVal, oldVal) {
+			this.InitData(newVal);
+		},
+		MessageReadList(newVal, oldVal) {
+			//更新消息已读状态
+			console.log('更新消息已读');
+			// console.log(JSON.stringify(this.list))
+			newVal.forEach(item => {
+				// console.log(JSON.stringify(item));
+				this.list.forEach(item1 => {
+					item1.isPeerRead = true;
+				});
+			});
+		},
+		MessageRevoke(newVal, oldVal) {
+			//更新撤回消息状态
+			console.log('更新消息撤回');
+			console.log(JSON.stringify(newVal));
+			this.list.forEach(item => {
+				if (item.ID === newVal[0].ID) {
+					item.isremove = true;
+				}
+			});
+		},
+		mode(newValue, oldValue) {
+			if (newValue === '') {
+				setTimeout(() => {
+					this.$refs.action.hide(); //隐藏扩展菜单
+					this.$refs.emoticon.hide(); //隐藏表情菜单
+					// this.$refs.input.blur();//主动让键盘失去焦点
+				}, 10);
+			}
+			if (newValue === 'text') {
+				this.$refs.action.hide(); //隐藏扩展菜单
+				this.$refs.emoticon.hide(); //隐藏表情菜单
+				this.KeyboardHeight = this.KeyOpenHeight;
+			}
+			// if (newValue === 'audio') {
+			// 	this.$refs.action.hide();//隐藏扩展菜单
+			// 	this.$refs.emoticon.hide();//隐藏表情菜单
+			// 	this.KeyboardHeight = this.KeyOpenHeight;
+			// }
+		},
+		MsgList(newValue, oldValue) {
+			// console.log(JSON.stringify(newValue))
+			this.TencentMessageList = newValue; // 同步腾讯消息列表。
+		}
+		// AddMsgList(newValue, oldValue) {
+		// 	console.log(JSON.stringify(newValue))
+		// 	this.TencentMessageList.push(newValue); // 追加同步腾讯消息列表。
+		// 	console.log(JSON.stringify(this.TencentMessageList))
+		// }
+	},
+	// 监听页面卸载
+	onUnload() {
+		let ReadID = 'C2C' + this.toUserID;
+		// console.log(ReadID);//C2C5
+		//退出页面 将所有的会话内的消息设置为已读
+		let promise = getApp().$tim.setMessageRead({ conversationID: ReadID });
+		promise.then(imResponse => {
+			console.log('全部已读');
+			//调用上一个界面的消息列表刷新方法
+			// 发送页
+			uni.$emit('MsgRead', {});
+			// 已读上报成功
+		})
+		.catch(imError => {
+			// 已读上报失败
+			console.warn('setMessageRead error:', imError);
+		});
+	}
+};
+</script>
+
+<style scoped>
+.iconfont {
+	font-family: iconfont;
+}
+	
+.send-color {
+	background-color: #06c062;
+}
+
+.send-select-color {
+	background-color: #06ad55;
+}
+</style>

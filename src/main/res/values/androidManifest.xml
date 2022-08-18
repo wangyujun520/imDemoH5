@@ -1,0 +1,4 @@
+<!-- <application>  
+<meta-data android:name="DCLOUD_WRITE_EXTERNAL_STORAGE" android:value="always"/>  
+<meta-data android:name="DCLOUD_READ_PHONE_STATE" android:value="always"/>  
+</application> -->

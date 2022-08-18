@@ -1,0 +1,72 @@
+<template>
+	<view class="position-relative">
+		<!-- <video :src="url" :poster="PosterUrl" controls auto-play style="width: 750rpx;" -->
+		<!-- <video :src="url" controls auto-play style="width: 750rpx;" -->
+		<video :src="url" controls :autoplay="autoplay" style="width: 750rpx;"
+		:style="'height:'+windowHeight+'px;'" @ended="back"></video>
+		<view class="position-absolute rounded flex align-center justify-center" style="width: 80rpx;height: 80rpx;left: 30rpx;top: 70rpx;background-color: rgba(255,255,255,0.3);" @click="back">
+			<text class="iconfont text-white font-lg">&#xe92a;</text>
+			<!-- <u-icon name="backspace" color="#ffffff" size="28"></u-icon> -->
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				autoplay:true,
+				url:"",
+				// PosterUrl:"",//视频封面
+				windowHeight:500
+			}
+		},
+		created() {
+		//     var domModule = weex.requireModule("dom");
+		//     domModule.addRule('fontFace', {
+		//            'fontFamily': 'iconfont',
+		//            'src': "url(\'http://at.alicdn.com/t/font_2490911_yui5vf9747r.ttf\')"
+		//     })
+		},
+		onLoad(e) {
+			if (e.url === '') {
+				this.back()
+				return uni.showToast({
+					title: '非法视频',
+					icon: 'none'
+				});
+			}
+			this.url = e.url;
+			// this.PosterUrl = e.PosterUrl;
+			// 动态获取高度
+			// let res = uni.getSystemInfoSync()
+			// this.windowHeight = res.windowHeight;
+			try {
+				// 动态获取高度
+				let res = uni.getSystemInfoSync()
+				this.windowHeight = res.windowHeight;
+				// const getinfo = uni.getSystemInfoSync();
+				// if (getinfo.model == 'iPhoneXSMax') {
+				// 	// this.windowHeight = res.windowHeight - uni.upx2px(62);
+				// 	this.windowHeight = res.windowHeight;
+				// } else {
+				// 	this.windowHeight = res.windowHeight;
+				// }
+			} catch (e) {
+				console.log(e);
+			}
+			
+		},
+		methods: {
+			back(){
+				uni.navigateBack({
+					delta: 1
+				});
+			}
+		}
+	}
+</script>
+
+<style>
+
+</style>

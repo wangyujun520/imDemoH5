@@ -1,0 +1,251 @@
+<template>
+	<view class="p-3">
+		<view class="flex bg-white flex-column align-center py-5">
+			<view class="">
+				<!-- <image src="https://ebao-vip-ins.oss-cn-shenzhen.aliyuncs.com/WangYuJunFile/img/%E8%B4%AD%E7%89%A9%E8%BD%A6.png" style="width: 120rpx;height: 120rpx;"></image> -->
+				<image :src="DataList.imgIcon" style="width: 120rpx;height: 120rpx;"></image>
+			</view>
+			<text style="font-size: 26rpx;color: #777;">{{DataList.workType}}</text>
+			<text class="my-1" style="font: 26rpx;color: #0072FF;">{{DataList.name}}</text>
+			<view v-if="DataList.address != ''" class="" style="color: #777;">
+				<text class="iconfont" style="font-size: 28rpx;">&#xe65e;</text>
+				<text style="font-size: 26rpx;">{{DataList.address}}</text>
+			</view>
+		</view>
+
+		<view class="flex flex-column bg-white mt-2 rounded">
+			<view class="flex justify-between align-center pl-2" style="height: 100rpx;border-bottom: 1px solid rgba(187,187,187,0.2);">
+				<text class="" style="color: #101010;font-size: 28rpx;">工龄</text>
+				<view class="flex align-center pr-2">
+					<text style="color: #777;font-size: 28rpx;">{{DataList.workingYears}}</text>
+					<!-- <text class="iconfont" style="font-weight: bold;font-size: 40rpx;color: #555;">&#xe656;</text> -->
+				</view>
+			</view>
+			<view class="flex justify-between pl-2 pt-3 pb-2" style="min-height: 100rpx;">
+				<text class="" style="color: #101010;font-size: 28rpx;">销售擅长</text>
+				<view class="flex pr-2">
+					<view class="flex justify-end flex-wrap" style="width: 480rpx;">
+						<text v-for="(item,index) in DataList.goodAtSales" :key="index" v-if="item.isLike" class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">{{item.name}}</text>
+						<!-- <text class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">A类型</text>
+						<text class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">A类型</text>
+						<text class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">A类型</text>
+						<text class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">A类型</text>
+						<text class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">A类型</text>
+						<text class="rounded mb-1 ml-1" style="color: #FFFFFF;background-color: #FF9900;font-size: 26rpx;padding: 10rpx 30rpx;">A类型</text> -->
+					</view>
+					<!-- <text class="iconfont" style="font-weight: bold;font-size: 40rpx;color: #555;">&#xe656;</text> -->
+				</view>
+			</view>
+		</view>
+		
+		
+		
+		<view class="flex flex-column bg-white mt-2 rounded">
+			<view @click="skipMerchantSalesAuthorization" class="flex justify-between align-center pl-2" style="height: 100rpx;border-bottom: 1px solid rgba(187,187,187,0.2);">
+				<text class="" style="color: #101010;font-size: 28rpx;">商家销售授权</text>
+				<view class="flex align-center">
+					<text class="iconfont" style="font-weight: bold;font-size: 40rpx;color: #555;">&#xe656;</text>
+				</view>
+			</view>
+			<view @click="skipReferences" class="flex justify-between align-center pl-2" style="height: 100rpx;border-bottom: 1px solid rgba(187,187,187,0.2);">
+				<text class="" style="color: #101010;font-size: 28rpx;">推荐人</text>
+				<view class="flex align-center">
+					<text v-if="!References" style="color: #777;font-size: 28rpx;">没有推荐人</text>
+					<text class="iconfont" style="font-weight: bold;font-size: 40rpx;color: #555;">&#xe656;</text>
+				</view>
+			</view>
+		</view>
+		
+		<u-action-sheet :list="list" @click="SetUpClick" v-model="show"></u-action-sheet>
+		<u-toast ref="uToast"></u-toast>
+	</view>
+</template>
+
+<script>
+export default {
+	onNavigationBarButtonTap(e) {
+		if (e.float == 'right') {
+			this.show = true;
+		}
+	},
+	data() {
+		return {
+			list: [],
+			show: false,
+			DataList: '' ,//Mock数据
+			Authenticate:false,
+			References:false//false 表示没有推荐人 true表示有推荐人
+		};
+	},
+	onLoad(options) {
+		this.Authenticate = JSON.parse(options.authenticate);
+		if(this.Authenticate == true){
+			this.list = [{
+				text: '设为默认'
+			}, {
+				text: '修改基本资料'
+			}]
+		}else{
+			this.list = [{
+				text: '修改基本资料'
+			}]
+		}
+	},
+	onShow() {
+		// 销售人员认证首页
+		var RequrestUrl = this.AJB.BizUrl + 'api/MobileUser/GetMySalesManDetail';
+		var RequrestDatas = {};
+		this.AJB.UniAjax(RequrestUrl, RequrestDatas).then(res => {
+			this.DataList = res.dataList;
+			console.log(JSON.stringify(res));
+		})
+		.catch(err => {
+			console.log(err);
+		});
+		
+		// var DataLists = {
+		// 	code: 200,
+		// 	msg: 'ok',
+		// 	dataList: {
+		// 		imgIcon: 'https://ebao-vip-ins.oss-cn-shenzhen.aliyuncs.com/WangYuJunFile/img/%E8%B4%AD%E7%89%A9%E8%BD%A6.png',
+		// 		workType: '销售人员',
+		// 		name: '张三',
+		// 		address: '四川省成都市武侯区G213辅路',
+		// 		workingYears: '10年',
+		// 		goodAtSales: [
+		// 			{
+		// 				name: 'A类型',
+		// 				isLike: false
+		// 			},
+		// 			{
+		// 				name: 'B类型',
+		// 				isLike: true
+		// 			},
+		// 			{
+		// 				name: 'C类型',
+		// 				isLike: false
+		// 			},
+		// 			{
+		// 				name: 'D类型',
+		// 				isLike: true
+		// 			},
+		// 			{
+		// 				name: 'E类型',
+		// 				isLike: true
+		// 			},
+		// 			{
+		// 				name: 'F类型',
+		// 				isLike: true
+		// 			},
+		// 			{
+		// 				name: 'G类型',
+		// 				isLike: true
+		// 			}
+		// 		]
+		// 	}
+		// };
+		// this.DataList = DataLists.dataList;
+	},
+	methods: {
+		// 商家销售授权
+		skipMerchantSalesAuthorization(){
+			uni.navigateTo({
+				url:'/pages/tabBar/my/RegistrationAgreement/SalesAuthorization'
+			})
+		},
+		// 推荐人
+		skipReferences(){
+			if(this.References){
+				// 有推荐人
+				uni.navigateTo({
+					url:'/pages/tabBar/my/RegistrationAgreement/References'
+				})
+			}else{
+				//没有推荐人
+				uni.navigateTo({
+					url:'/pages/tabBar/my/RegistrationAgreement/RecommenderTips'
+				})
+			}
+			
+		},
+		// 个体工商户注册
+		skipBusinessRegistration(){		
+			if(this.DataList.isRegister){
+				return;
+			}
+			uni.navigateTo({
+				url:'/pages/tabBar/my/RegistrationAgreement/BusinessRegistration?name=销售人员'
+			})
+		},
+		// 平台服务协议
+		skipServiceAgreement(){
+			if(this.DataList.isSign){
+				return;
+			}
+			uni.navigateTo({
+				url:'/pages/tabBar/my/RegistrationAgreement/ServiceAgreement?name=销售人员'
+			})
+		},
+		SetUpClick(index) {
+			if (index == 0 && this.Authenticate == true) {
+				// 设为默认
+				var RequrestUrl = this.AJB.BizUrl + 'api/MobileUser/SetDefaultProfession';
+				var RequrestDatas = {
+					type: '销售人员'
+				};
+				this.AJB.UniAjax(RequrestUrl, RequrestDatas)
+					.then(res => {
+						if (res.code == 200) {
+							this.SetIdentity();
+						} else {
+							this.$refs.uToast.show({
+								title: '设置失败',
+								type: 'error'
+							});
+						}
+					})
+					.catch(err => {
+						console.log(err);
+					});
+			}
+			if (index == 0 && this.Authenticate == false) {
+				// 跳转到销售人员基本信息
+				uni.navigateTo({
+					url: '/pages/tabBar/my/identityauthentication/modify/SalesStaffCertification'
+				});
+			}
+			if (index == 1) {
+				// 跳转到销售人员基本信息
+				uni.navigateTo({
+					url: '/pages/tabBar/my/identityauthentication/modify/SalesStaffCertification'
+				});
+			}
+			console.log(`点击了第${index + 1}项，内容为：${this.list[index].text}`);
+		},
+		SetIdentity() {
+			// 修改个人自定义资料
+			// 自定义资料字段需要预先在控制台配置，详细请参考：https://cloud.tencent.com/document/product/269/1500#.E8.87.AA.E5.AE.9A.E4.B9.89.E8.B5.84.E6.96.99.E5.AD.97.E6.AE.B5
+			let promise = getApp().$tim.updateMyProfile({
+				// 这里要求您已在即时通信 IM 控制台>【应用配置】>【功能配置】 申请了自定义资料字段 Tag_Profile_Custom_Test1
+				// 注意：即使只有一个自定义资料字段，profileCustomField 也需要用数组类型
+				profileCustomField: [{
+					key: 'Tag_Profile_Custom_Rank',
+					value: '销售人员'
+				}]
+			});
+			promise.then(imResponse => {
+				console.log("更新资料成功");
+				this.$refs.uToast.show({
+					title: '设置成功',
+					type: 'success'
+				});
+				console.log(JSON.stringify(imResponse.data)); // 更新资料成功
+			}).catch(imError => {
+				console.warn('updateMyProfile error:', imError); // 更新资料失败的相关信息
+			});
+		}
+	}
+};
+</script>
+
+<style lang="scss" scoped></style>

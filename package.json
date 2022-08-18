@@ -1,0 +1,22 @@
+{
+  "name": "anjubang",
+  "version": "1.0.0",
+  "description": "AJB",
+  "main": "main.js",
+  "dependencies": {
+    "@mypui/myp-ui": "^2.9.0",
+    "crypto-js": "^4.0.0",
+    "tim-js-sdk": "^2.8.1",
+    "xmldom": "0.1.31"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@code.aliyun.com:670535490/Anjubang.git"
+  },
+  "author": "wang, liao",
+  "license": "ISC"
+}
