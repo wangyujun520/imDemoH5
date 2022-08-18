@@ -149,7 +149,20 @@ page{
 			justify-content: center;
 			align-items: center;
 			// background:linear-gradient(to right,#f09b37,#eb632c);
-			background-color: #95ec69;
+			// background-color: #eee;
+			background-color: rgba(39, 192, 80, 0.5);
+			color: #fff;
+			border-radius: 6rpx;
+			font-size: 24rpx;
+		}
+		.btn-yes{
+			width: 90rpx;
+			height: 56rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			// background:linear-gradient(to right,#f09b37,#eb632c);
+			background-color: rgba(39, 192, 80, 1);
 			color: #fff;
 			border-radius: 6rpx;
 			font-size: 24rpx;

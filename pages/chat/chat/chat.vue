@@ -109,7 +109,7 @@
 			</view>
 			<!-- #endif -->
 			<view class="send" :class="isVoice?'hidden':''" @tap="sendText">
-				<view class="btn">发送</view>
+				<view :class="textMsgState?'btn-yes':'btn'">发送</view>
 			</view>
 		</view>
 		<!-- 录音UI效果 -->
@@ -172,6 +172,7 @@
 				TIM: this.$tim,
 				//文字消息
 				textMsg: '',
+				textMsgState: false,//文字非空状态
 				//消息列表
 				isHistoryLoading: false,
 				scrollAnimation: false,
@@ -351,6 +352,14 @@
 				this.msgList = newVal
 				this.screenMsg(newVal, oldVal)
 			},
+			// 判断按钮发送状态
+			textMsg(newVal,oldVal){
+				if(newVal==''){
+					this.textMsgState = false;
+				}else{
+					this.textMsgState = true;
+				}
+			}
 		},
 		onLoad(options) {
 			// 动态修改标题
@@ -597,6 +606,9 @@
 			},
 			// 发送文字消息
 			sendText() {
+				if(!this.textMsgState){
+					return
+				}
 				this.hideDrawer(); //隐藏抽屉
 				if (!this.textMsg) {
 					return;
@@ -644,7 +656,8 @@
 				// this.$store.commit('pushCurrentMessageList', message)
 				let pomise = this.$tim.sendMessage(message)
 				pomise.then(res => {
-					console.log('发送成功')
+					console.log('发送成功');
+					
 					
 					// {
 					//         "ID": "C2C17360056365-2000247090-1287657-0",
