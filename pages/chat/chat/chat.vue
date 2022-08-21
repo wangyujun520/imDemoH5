@@ -1,8 +1,8 @@
 <template>
 	<view>
 		<view class="content" @touchstart="hideDrawer">
-			<scroll-view class="msg-list" scroll-y="true" :scroll-with-animation="scrollAnimation"
-				:scroll-top="scrollTop" :scroll-into-view="scrollToView" @scrolltoupper="loadHistory"
+			<scroll-view class="msg-list" scroll-y="true" :scroll-top="scrollTop" 
+			:scroll-into-view="scrollToView" @scrolltoupper="loadHistory"
 				upper-threshold="50">
 				<!-- 加载历史数据waitingUI -->
 				<view class="loading" v-if="loadState">
@@ -14,17 +14,33 @@
 						<view class="rect5"></view>
 					</view>
 				</view>
-				<view class="row" v-for="(item,index) in messageList" :key="index" :id="item.ID">
+				
+				
+				<view class="row" v-for="(item,index) in messageList" :key="item.id" :id="item.id">
+					
+					<!-- 时间显示 -->
+					<!-- <view v-if="showTime(item.time,messageList[index-1].time)" class="flex justify-center align-center pb-4 pt-2">
+						<text class="font-sm text-light-muted">{{ showTime(item.time,messageList[index-1].time) }}</text>
+					</view> -->
+					
+					<!-- 撤回消息 -->
+					<view v-if="item.isremove" class="flex justify-center align-center pb-4 pt-1">
+						<text style="font-size: 26rpx;color: #A9A5A0;">{{ isself ? '你' : '对方' }}撤回了一条信息</text>
+					</view>
+					
+					
 					<!-- 用户消息 -->
-					<block>
+					<block v-if="!item.isremove">
 						<!-- 自己发出的消息 -->
 						<view class="my" v-if="item.flow=='out'">
 							<!-- 左-消息 -->
 							<view class="left">
 								<!-- 文字消息 -->
+								<text v-if="!item.isPeerRead" style="margin-top: 30rpx;font-size: 26rpx;margin-right: 10rpx;color: #FE7130;">未读</text>
+								<text v-if="item.isPeerRead" style="margin-top: 30rpx;font-size: 26rpx;margin-right: 10rpx;color: #A9A5A0;">已读</text>
 								<!-- <view v-if="item.type==TIM.TYPES.MSG_TEXT" class="bubble"> -->
 								<view v-if="item.type=='TIMTextElem'" class="bubble">
-									<rich-text :nodes="nodesFliter(item.payload.text)"></rich-text>
+									<rich-text :nodes="nodesFliter(item.data)"></rich-text>
 								</view>
 							</view>
 							<!-- 右-头像 -->
@@ -36,16 +52,20 @@
 						<!-- 别人发出的消息 -->
 						<view class="other" v-else>
 							<view class="left">
-								<image :src="toUserInfo.img"></image>
+								<image :src="toUserInfo.avatar"></image>
 							</view>
 							<view class="right">
+								<!-- <text v-if="!item.isPeerRead" style="margin-top: 30rpx;font-size: 26rpx;margin-right: 10rpx;color: #FE7130;">未读</text>
+								<text v-if="item.isPeerRead" style="margin-top: 30rpx;font-size: 26rpx;margin-right: 10rpx;color: #A9A5A0;">已读</text> -->
 								<view class="username">
-									<view class="name">{{toUserInfo.user}}</view>
+									<view class="name">{{toUserInfo.nick}}</view>
 									<view class="time">{{timeFliter(item.time)}}</view>
 								</view>
 								<view v-if="item.type=='TIMTextElem'" class="bubble">
-									<rich-text :nodes="nodesFliter(item.payload.text)"></rich-text>
+									<rich-text :nodes="nodesFliter(item.data)"></rich-text>
+									<!-- <text>已读</text> -->
 								</view>
+								
 							</view>
 						</view>
 					</block>
@@ -147,8 +167,8 @@
 	</view>
 </template>
 <script>
-	// import userList from '../../commen/tim/user.js'
-	import userList from '@/common/tim/user.js'
+	// import userList from '@/common/tim/user.js'
+	import $T from '@/common/free-lib/time.js';//格式化时间
 	import emojiList from '@/common/commen.js'
 	import {
 		mapState
@@ -157,13 +177,16 @@
 	export default {
 		data() {
 			return {
+				userInfo: uni.getStorageSync('userInfo'),//当前用户资料信息
+				toUserInfo: this.$store.state.im.toUserInfo,//聊天对象的资料信息
+				conversationID:'',//聊天对象的编号
+				IsIOS:false,
 				//TIM变量
-				loadState: false, //是否显示加载动画
+				loadState: true, //是否显示加载动画
 				isCompleted: false, // 表示是否已经拉完所有消息。
 				conversationActive: null,
 				toUserId: '',
-				toUserInfo: null,
-				userInfo: null,
+				// toUserInfo: null,
 				nextReqMessageID: '',
 				count: 15,
 				// isCompleted: '',
@@ -208,129 +231,6 @@
 				hideEmoji: true,
 				// emojiList: this.$commen.emojiList,
 				emojiList: emojiList,
-				//表情图片图床名称 ，由于我上传的第三方图床名称会有改变，所以有此数据来做对应，您实际应用中应该不需要
-				onlineEmoji: {
-					"100.gif": "AbNQgA.gif",
-					"101.gif": "AbN3ut.gif",
-					"102.gif": "AbNM3d.gif",
-					"103.gif": "AbN8DP.gif",
-					"104.gif": "AbNljI.gif",
-					"105.gif": "AbNtUS.gif",
-					"106.gif": "AbNGHf.gif",
-					"107.gif": "AbNYE8.gif",
-					"108.gif": "AbNaCQ.gif",
-					"109.gif": "AbNN4g.gif",
-					"110.gif": "AbN0vn.gif",
-					"111.gif": "AbNd3j.gif",
-					"112.gif": "AbNsbV.gif",
-					"113.gif": "AbNwgs.gif",
-					"114.gif": "AbNrD0.gif",
-					"115.gif": "AbNDuq.gif",
-					"116.gif": "AbNg5F.gif",
-					"117.gif": "AbN6ET.gif",
-					"118.gif": "AbNcUU.gif",
-					"119.gif": "AbNRC4.gif",
-					"120.gif": "AbNhvR.gif",
-					"121.gif": "AbNf29.gif",
-					"122.gif": "AbNW8J.gif",
-					"123.gif": "AbNob6.gif",
-					"124.gif": "AbN5K1.gif",
-					"125.gif": "AbNHUO.gif",
-					"126.gif": "AbNIDx.gif",
-					"127.gif": "AbN7VK.gif",
-					"128.gif": "AbNb5D.gif",
-					"129.gif": "AbNX2d.gif",
-					"130.gif": "AbNLPe.gif",
-					"131.gif": "AbNjxA.gif",
-					"132.gif": "AbNO8H.gif",
-					"133.gif": "AbNxKI.gif",
-					"134.gif": "AbNzrt.gif",
-					"135.gif": "AbU9Vf.gif",
-					"136.gif": "AbUSqP.gif",
-					"137.gif": "AbUCa8.gif",
-					"138.gif": "AbUkGQ.gif",
-					"139.gif": "AbUFPg.gif",
-					"140.gif": "AbUPIS.gif",
-					"141.gif": "AbUZMn.gif",
-					"142.gif": "AbUExs.gif",
-					"143.gif": "AbUA2j.gif",
-					"144.gif": "AbUMIU.gif",
-					"145.gif": "AbUerq.gif",
-					"146.gif": "AbUKaT.gif",
-					"147.gif": "AbUmq0.gif",
-					"148.gif": "AbUuZV.gif",
-					"149.gif": "AbUliF.gif",
-					"150.gif": "AbU1G4.gif",
-					"151.gif": "AbU8z9.gif",
-					"152.gif": "AbU3RJ.gif",
-					"153.gif": "AbUYs1.gif",
-					"154.gif": "AbUJMR.gif",
-					"155.gif": "AbUadK.gif",
-					"156.gif": "AbUtqx.gif",
-					"157.gif": "AbUUZ6.gif",
-					"158.gif": "AbUBJe.gif",
-					"159.gif": "AbUdIO.gif",
-					"160.gif": "AbU0iD.gif",
-					"161.gif": "AbUrzd.gif",
-					"162.gif": "AbUDRH.gif",
-					"163.gif": "AbUyQA.gif",
-					"164.gif": "AbUWo8.gif",
-					"165.gif": "AbU6sI.gif",
-					"166.gif": "AbU2eP.gif",
-					"167.gif": "AbUcLt.gif",
-					"168.gif": "AbU4Jg.gif",
-					"169.gif": "AbURdf.gif",
-					"170.gif": "AbUhFS.gif",
-					"171.gif": "AbU5WQ.gif",
-					"172.gif": "AbULwV.gif",
-					"173.gif": "AbUIzj.gif",
-					"174.gif": "AbUTQs.gif",
-					"175.gif": "AbU7yn.gif",
-					"176.gif": "AbUqe0.gif",
-					"177.gif": "AbUHLq.gif",
-					"178.gif": "AbUOoT.gif",
-					"179.gif": "AbUvYF.gif",
-					"180.gif": "AbUjFU.gif",
-					"181.gif": "AbaSSJ.gif",
-					"182.gif": "AbUxW4.gif",
-					"183.gif": "AbaCO1.gif",
-					"184.gif": "Abapl9.gif",
-					"185.gif": "Aba9yR.gif",
-					"186.gif": "AbaFw6.gif",
-					"187.gif": "Abaiex.gif",
-					"188.gif": "AbakTK.gif",
-					"189.gif": "AbaZfe.png",
-					"190.gif": "AbaEFO.gif",
-					"191.gif": "AbaVYD.gif",
-					"192.gif": "AbamSH.gif",
-					"193.gif": "AbaKOI.gif",
-					"194.gif": "Abanld.gif",
-					"195.gif": "Abau6A.gif",
-					"196.gif": "AbaQmt.gif",
-					"197.gif": "Abal0P.gif",
-					"198.gif": "AbatpQ.gif",
-					"199.gif": "Aba1Tf.gif",
-					"200.png": "Aba8k8.png",
-					"201.png": "AbaGtS.png",
-					"202.png": "AbaJfg.png",
-					"203.png": "AbaNlj.png",
-					"204.png": "Abawmq.png",
-					"205.png": "AbaU6s.png",
-					"206.png": "AbaaXn.png",
-					"207.png": "Aba000.png",
-					"208.png": "AbarkT.png",
-					"209.png": "AbastU.png",
-					"210.png": "AbaB7V.png",
-					"211.png": "Abafn1.png",
-					"212.png": "Abacp4.png",
-					"213.png": "AbayhF.png",
-					"214.png": "Abag1J.png",
-					"215.png": "Aba2c9.png",
-					"216.png": "AbaRXR.png",
-					"217.png": "Aba476.png",
-					"218.png": "Abah0x.png",
-					"219.png": "Abdg58.png"
-				},
 				//红包相关参数
 				windowsState: '',
 				redenvelopeData: {
@@ -345,12 +245,25 @@
 		computed: {
 			...mapState({
 				currentMessageList: state => state.currentMessageList,
+				conversationList: state => state.im.conversationList,
+				MessageReadList: state => state.im.MessageReadList,
+				MessageRevoke: state => state.im.MessageRevoke
 			})
+			// ,
+			// //显示的时间
+			// showTime(time,pretime) {
+			// 	console.log(time)
+			// 	console.log(pretime)
+			// 	// 时间和上条消息的时间
+			// 	return $T.getChatTime(time,pretime);
+			// }
 		},
 		watch: {
 			currentMessageList(newVal, oldVal) {
-				this.msgList = newVal
-				this.screenMsg(newVal, oldVal)
+				console.log('消息接收')
+				console.log(newVal)
+				// this.msgList = newVal
+				// this.screenMsg(newVal, oldVal)
 			},
 			// 判断按钮发送状态
 			textMsg(newVal,oldVal){
@@ -359,62 +272,133 @@
 				}else{
 					this.textMsgState = true;
 				}
-			}
+			},
+			conversationList(val) {
+				// console.log(val)
+				this.InitData(val);
+			},
+			MessageReadList(newVal, oldVal) {
+				//更新消息已读状态
+				console.log('更新消息已读');
+				// console.log(JSON.stringify(this.list))
+				newVal.forEach(item => {
+					// console.log(JSON.stringify(item));
+					this.messageList.forEach(item1 => {
+						item1.isPeerRead = true;
+					});
+				});
+			},
+			MessageRevoke(newVal, oldVal) {
+				//更新撤回消息状态
+				console.log('更新消息撤回');
+				console.log(JSON.stringify(newVal));
+				this.messageList.forEach(item => {
+					if (item.ID === newVal[0].ID) {
+						item.isremove = true;
+					}
+				});
+			},
+			// messageList(newVal, oldVal) {
+			// 	this.InitData(newVal);
+			// },
+			// currentMessageList(newVal, oldVal) {
+			// 	this.InitData(newVal);
+			// },
 		},
 		onLoad(options) {
 			// 动态修改标题
 			uni.setNavigationBarTitle({
 				title: options.name
 			});
-			
-			// this.userInfo = JSON.parse(uni.getStorageSync('userInfo'))
-			
-			this.userInfo = uni.getStorageSync('userInfo');
-			console.log(this.userInfo)
+			// 获取用户缓存
+			// this.userInfo = uni.getStorageSync('userInfo');
+			// console.log(this.userInfo)
 			this.toUserId = this.$store.state.im.toUserId
-			console.log(this.toUserId)
+			// console.log(this.toUserId)
 			this.conversationActive = this.$store.state.im.conversationActive
-			console.log(JSON.stringify(this.conversationActive))
-			//获取聊天对象的用户信息
-			userList.forEach(item => {
-				if (this.toUserId == item.userId) {
-					this.toUserInfo = item
-				}
-			})
-			console.log(this.toUserInfo)
+			// console.log(JSON.stringify(this.conversationActive.conversationID))
 			this.getMsgList();
-			// //语音自然播放结束
-			// this.AUDIO.onEnded((res) => {
-			// 	this.playMsgid = null;
-			// });
-			// // #ifndef H5
-			// //录音开始事件
-			// this.RECORDER.onStart((e) => {
-			// 	this.recordBegin(e);
-			// })
-			// //录音结束事件
-			// this.RECORDER.onStop((e) => {
-			// 	this.recordEnd(e);
-			// })
-			// // #endif
-		},
-		onShow() {
-			this.scrollTop = 9999999;
-		},
-		onUnload() {
-			//退出页面 将所有的会话内的消息设置为已读
-			let promise = this.$tim.setMessageRead({
-				conversationID: this.conversationActive.conversationID
-			});
-			promise.then(function(imResponse) {
-				console.log('全部已读')
-				// 已读上报成功
-			}).catch(function(imError) {
-				// 已读上报失败
-				console.warn('setMessageRead error:', imError);
-			});
 		},
 		methods: {
+			// 加载初始页面消息
+			getMsgList() {
+				
+				this.messageList = [];//清空数据
+				
+				
+				// 历史消息列表
+				let conversationID = this.conversationActive.conversationID
+				let promise = this.$tim.getMessageList({
+					conversationID: conversationID,
+					count: this.count
+				});
+				promise.then((res) => {
+					// console.log(JSON.stringify(res.data.messageList))
+					
+					for(let i = 0;i<res.data.messageList.length;i++){
+						let item = res.data.messageList[i];
+						// console.log(JSON.stringify(item));
+						let ChatItem = {};//消息显示
+						// 文本消息
+						if(item._elements[0].type=='TIMTextElem'){
+							ChatItem = {
+								id:item.ID,//唯一id
+								type:item._elements[0].type,//消息类型
+								// user_id:item.from,//用户id
+								to: item.to,
+								from: item.from,
+								time:item.time,//消息创建时间(时间戳)
+								flow:item.flow,//flow==out表示自己发出的消息，flow==in表示别人发出的消息
+								data:item._elements[0].content.text,//聊天内容
+								isremove: item.isRevoked, //是否撤回消息 默认false
+								isPeerRead: item.isPeerRead //是否已读消息
+							}
+						}
+						this.messageList.push(ChatItem);
+					}
+					// console.log(JSON.stringify(this.messageList))
+					// 滚动到底部
+					setTimeout(()=>{
+						this.scrollTop = 9999;
+					},300)
+					
+					// console.log(JSON.stringify(this.messageList));
+					// this.$store.commit('InitMsgList', res.data.messageList);
+					// this.nextReqMessageID = res.data.nextReqMessageID; // 用于续拉，分页续拉时需传入该字段。
+					// this.isCompleted = res.data.isCompleted; // 表示是否已经拉完所有消息。
+				});
+				
+			},
+			// 刷新数据
+			InitData(newVal){
+				console.log('刷新数据')
+				// console.log(JSON.stringify(this.userInfo))
+				// console.log(JSON.stringify(newVal))
+				let item = newVal[0];
+				let ChatItem = {
+					id: item.conversationID+'-'+item.lastMessage.lastTime,
+					type: item.lastMessage.type,
+					to: this.userInfo.userId,
+					from: item.lastMessage.fromAccount,
+					time: item.lastMessage.lastTime,
+					flow: 'in',
+					//flow==out表示自己发出的消息，flow==in表示别人发出的消息
+					data: item.lastMessage.payload.text,
+					isremove: false, //是否撤回消息 默认false
+					isPeerRead: false //是否已读消息
+				}
+				console.log(JSON.stringify(ChatItem))
+				// 同步消息
+				this.messageList.push(ChatItem);
+				// 滚动到底部
+				setTimeout(()=>{
+					this.scrollTop += 1;
+					// this.setMessageRead();
+				},300)
+				// this.setMessageRead();
+				
+				// this.messageList.push(newVal[0]);
+			},
 			//聊天的节点加上外层的div
 			nodesFliter(str) {
 				let nodeStr = '<div style="align-items: center;word-wrap:break-word;">' + str + '</div>'
@@ -472,42 +456,6 @@
 				// 	});
 				// });
 				// this.isHistoryLoading = false;
-			},
-			// 加载初始页面消息
-			getMsgList() {
-				// 历史消息列表
-				let conversationID = this.conversationActive.conversationID
-				let promise = this.$tim.getMessageList({
-					conversationID: conversationID,
-					count: this.count
-				});
-				promise.then((res) => {
-					this.messageList = res.data.messageList; // 消息列表。
-					// console.log(JSON.stringify(this.messageList));
-					this.$store.commit('InitMsgList', res.data.messageList);
-					this.nextReqMessageID = res.data.nextReqMessageID; // 用于续拉，分页续拉时需传入该字段。
-					this.isCompleted = res.data.isCompleted; // 表示是否已经拉完所有消息。
-					
-					
-					// this.$store.commit('pushCurrentMessageList', res.data.messageList)
-					// this.scrollToView = res.data.messageList[res.data.messageList.length - 1].ID
-					// console.log(this.nextReqMessageID)
-				});
-				// 滚动到底部
-				setTimeout(()=>{
-					this.scrollTop = 9999;
-					this.scrollAnimation = true;
-				},100)
-				
-				// // 滚动到底部
-				// this.$nextTick(function() {
-				// 	//进入页面滚动到底部
-				// 	this.scrollTop = 9999;
-				// 	this.$nextTick(function() {
-				// 		this.scrollAnimation = true;
-				// 	});
-				// });
-				
 			},
 			//处理图片尺寸，如果不处理宽高，新进入页面加载图片时候会闪
 			setPicSize(content) {
@@ -647,256 +595,62 @@
 				console.log(type)
 				let message = this.$tim.createTextMessage({
 					to: this.toUserId,
-					// conversationType: 'C2C',
-					conversationType: this.$TIM.TYPES.CONV_C2C,
+					conversationType: 'C2C',
+					// conversationType: this.$TIM.TYPES.CONV_C2C,
 					payload: {
 						text: content.text
 					}
 				});
 				// this.$store.commit('pushCurrentMessageList', message)
 				let pomise = this.$tim.sendMessage(message)
-				pomise.then(res => {
+				pomise.then(imResponse => {
 					console.log('发送成功');
 					
+					// 发送成功
+					console.log(imResponse);
+					let item = imResponse.data.message;
+					let ItemChat = {
+						id: item.ID,
+						type: item.type,
+						to: item.to,
+						from: item.from,
+						time: item.time,
+						flow: item.flow,
+						data: item.payload.text,
+						isremove: false, //是否撤回消息 默认false
+						isPeerRead: false //是否已读消息
+					}
 					
-					// {
-					//         "ID": "C2C17360056365-2000247090-1287657-0",
-					//         "conversationID": "C2C17360056365",
-					//         "conversationType": "C2C",
-					//         "time": 1659580016,
-					//         "sequence": 2000247090,
-					//         "clientSequence": 2000247090,
-					//         "random": 1287657,
-					//         "priority": "Normal",
-					//         "nick": "",
-					//         "avatar": "",
-					//         "isPeerRead": false,
-					//         "nameCard": "",
-					//         "_elements": [
-					//             {
-					//                 "type": "TIMTextElem",
-					//                 "content": {
-					//                     "text": "hello"
-					//                 }
-					//             }
-					//         ],
-					//         "isPlaceMessage": 0,
-					//         "isRevoked": false,
-					//         "geo": {
-					            
-					//         },
-					//         "from": "17360056365",
-					//         "to": "15882182484",
-					//         "flow": "in",
-					//         "isSystemMessage": false,
-					//         "protocol": "JSON",
-					//         "isResend": false,
-					//         "isRead": true,
-					//         "status": "success",
-					//         "_onlineOnlyFlag": false,
-					//         "_groupAtInfoList": [
-					            
-					//         ],
-					//         "atUserList": [
-					            
-					//         ],
-					//         "payload": {
-					//             "text": "hello"
-					//         },
-					//         "type": "TIMTextElem"
-					//     },
+					// 同步消息
+					this.messageList.push(ItemChat);
+					// 滚动到底部
+					
+					setTimeout(()=>{
+						console.log('回到底部')
+						this.scrollTop+=1;
+					},300)
+					// // 滚动到底部
+					// setTimeout(()=>{
+					// 	console.log('回到底部')
+					// 	this.scrollTop = 9999;
+					// },300)
+					
+					// // 滚动到底部
+					// setTimeout(()=>{
+					// 	// console.log('执行了')
+					// 	this.scrollTop = 9999;
+					// 	this.scrollAnimation = true;
+					// },1000)
 					
 					// 滚动到底部
-					setTimeout(()=>{
-						this.scrollTop = 9999;
-						this.scrollAnimation = true;
-					},100)
+					// setTimeout(()=>{
+					// 	console.log('执行了')
+					// 	this.scrollTop = 9999;
+					// 	this.scrollAnimation = true;
+					// },500)
 					
-					// this.$nextTick(() => {
-					// 	// 滚动到底
-					// 	this.scrollToView = res.data.message.ID
-					// });
 				})
 				
-				// // 发送文字
-				// var time = new Date().getTime(); //获取当前时间戳
-				// var obj = {
-				// 	ID: '', //编号
-				// 	avatar: uni.getStorageSync('avatar'),
-				// 	// avatar:'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1735490596,2760195857&fm=26&gp=0.jpg',
-				// 	user_id: this.MyUserId, //自己的UserID
-				// 	nickname: uni.getStorageSync('nickname'),
-				// 	type: type, //text,image,audio,video,emoticon, file,share
-				// 	data: content.text,
-				// 	options: options,
-				// 	create_time: time, //创建时间
-				// 	isremove: false, //是否撤回消息
-				// 	isPeerRead: false //是否已读
-				// };
-				
-				// switch (type) {
-				// 	case 'location':
-				// 		let locationmessage = this.$tim.createCustomMessage({
-				// 			to: this.toUserID,
-				// 			conversationType: this.TIM.TYPES.CONV_C2C,
-				// 			payload: {
-				// 				data: 'location', // 用于标识该消息是骰子类型消息
-				// 				description: obj.data, // 详细地址
-				// 				extension: '' + obj.options.LocationAddress + '' //经纬度
-				// 			}
-				// 		});
-				// 		// 3. 发送消息
-				// 		let locationpromise = this.$tim.sendMessage(locationmessage);
-				// 		locationpromise
-				// 			.then(imResponse => {
-				// 				// 发送成功
-				// 				console.log(imResponse);
-				// 				this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
-				// 				obj.ID = imResponse.data.message.ID;
-				// 				this.PushMsg(obj.nickname, '[位置]');
-				// 			})
-				// 			.catch(imError => {
-				// 				// 发送失败
-				// 				console.warn('sendMessage error:', imError);
-				// 			});
-				// 		break;
-				// 	case 'text':
-				// 		obj.data = this.textMsg;
-				// 		// 1. 创建消息实例，接口返回的实例可以上屏
-				// 		let message = this.$tim.createTextMessage({
-				// 			to: this.toUserID,
-				// 			conversationType: this.TIM.TYPES.CONV_C2C,
-				// 			payload: {
-				// 				text: obj.data
-				// 			}
-				// 		});
-				// 		// 2. 发送消息
-				// 		let promise = this.$tim.sendMessage(message);
-				// 		promise.then(imResponse => {
-				// 			// 发送成功
-				// 			// console.log(imResponse);
-				// 			this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
-				// 			obj.ID = imResponse.data.message.ID;
-				// 			console.log('发送成功');
-				// 			console.log(JSON.stringify(obj));
-				// 			this.PushMsg(obj.nickname, obj.data);
-				// 		})
-				// 		.catch(imError => {
-				// 			// 发送失败
-				// 			console.warn('sendMessage error:', imError);
-				// 		});
-				// 		break;
-				// 	// case 'emoticon':
-				// 	// 	obj.data = data;
-				// 	// 	break;
-				// 	// case 'image':
-				// 	// 	obj.data = data;
-				// 	// 	break;
-				// 	case 'audio':
-				// 		let audiomessage = this.$tim.createCustomMessage({
-				// 			to: this.toUserID,
-				// 			conversationType: this.$tim.TYPES.CONV_C2C,
-				// 			payload: {
-				// 				data: 'audio', // 用于标识该消息是骰子类型消息
-				// 				description: obj.data, // 音频的路径
-				// 				extension: '' + obj.options.time + '' //音频时长
-				// 			}
-				// 		});
-				// 		// 3. 发送消息
-				// 		let audiopromise = this.$tim.sendMessage(audiomessage);
-				// 		audiopromise
-				// 			.then(imResponse => {
-				// 				// 发送成功
-				// 				console.log(imResponse);
-				// 				this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
-				// 				obj.ID = imResponse.data.message.ID;
-				// 				this.PushMsg(obj.nickname, '[语音]');
-				// 			})
-				// 			.catch(imError => {
-				// 				// 发送失败
-				// 				console.warn('sendMessage error:', imError);
-				// 			});
-				// 		break;
-				// 	case 'image':
-				// 		let imagemessage = this.$tim.createCustomMessage({
-				// 			to: this.toUserID,
-				// 			conversationType: this.$tim.TYPES.CONV_C2C,
-				// 			payload: {
-				// 				data: 'image', // 用于标识该消息是骰子类型消息
-				// 				description: obj.data, // 图片的路径
-				// 				extension: '' //自定义消息的扩展字段
-				// 			}
-				// 		});
-				// 		// 3. 发送消息
-				// 		let imagepromise = this.$tim.sendMessage(imagemessage);
-				// 		imagepromise
-				// 			.then(imResponse => {
-				// 				// 发送成功
-				// 				console.log(imResponse);
-				// 				this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
-				// 				obj.ID = imResponse.data.message.ID;
-				// 				this.PushMsg(obj.nickname, '[图片]');
-				// 			})
-				// 			.catch(imError => {
-				// 				// 发送失败
-				// 				console.warn('sendMessage error:', imError);
-				// 			});
-				// 		break;
-				// 	case 'video':
-				// 		let videomessage = this.$tim.createCustomMessage({
-				// 			to: this.toUserID,
-				// 			conversationType: this.$tim.TYPES.CONV_C2C,
-				// 			payload: {
-				// 				data: 'video', // 用于标识该消息是骰子类型消息
-				// 				description: obj.data, // 视频的路径
-				// 				extension: '' + obj.options.poster + '' //视频封面图
-				// 			}
-				// 		});
-				// 		// 3. 发送消息
-				// 		let videopromise = this.$tim.sendMessage(videomessage);
-				// 		videopromise
-				// 			.then(imResponse => {
-				// 				// 发送成功
-				// 				console.log(imResponse);
-				// 				this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
-				// 				obj.ID = imResponse.data.message.ID;
-				// 				this.PushMsg(obj.nickname, '[视频]');
-				// 			})
-				// 			.catch(imError => {
-				// 				// 发送失败
-				// 				console.warn('sendMessage error:', imError);
-				// 			});
-				// 		break;
-				// 	case 'emoticon':
-				// 		let emoticonmessage = this.$tim.createCustomMessage({
-				// 			to: this.toUserID,
-				// 			conversationType: this.$tim.TYPES.CONV_C2C,
-				// 			payload: {
-				// 				data: 'emoticon', // 用于标识该消息是骰子类型消息
-				// 				description: obj.data, // 图片的路径
-				// 				extension: '' //自定义消息的扩展字段
-				// 			}
-				// 		});
-				// 		// 3. 发送消息
-				// 		let emoticonpromise = this.$tim.sendMessage(emoticonmessage);
-				// 		emoticonpromise
-				// 			.then(imResponse => {
-				// 				// 发送成功
-				// 				console.log(imResponse);
-				// 				this.TencentMessageList.push(imResponse.data.message); //同步腾讯云消息列表
-				// 				obj.ID = imResponse.data.message.ID;
-				// 				this.PushMsg(obj.nickname, obj.data);
-				// 			})
-				// 			.catch(imError => {
-				// 				// 发送失败
-				// 				console.warn('sendMessage error:', imError);
-				// 			});
-				// 		break;
-					
-				// 	default:
-				// 		obj.data = data;
-				// 		break;
-				// }
 			},
 			// 添加文字消息到列表
 			addTextMsg(msg) {
@@ -1086,7 +840,40 @@
 			},
 			discard() {
 				return;
+			},
+			// 消息已读
+			setMessageRead(){
+				// let ReadID = 'C2C' + this.toUserID;
+				// console.log(ReadID);//C2C5
+				//退出页面 将所有的会话内的消息设置为已读
+				let Readpromise = this.$tim.setMessageRead({ conversationID: this.conversationActive.conversationID });
+				Readpromise.then(imResponse => {
+					console.log('全部已读');
+					//调用上一个界面的消息列表刷新方法
+					// 发送页
+					uni.$emit('MsgRead', {});
+					// 已读上报成功
+				}).catch(imError => {
+					// 已读上报失败
+					console.warn('setMessageRead error:', imError);
+				});
 			}
+		},
+		// 页面卸载
+		onUnload() {
+			//退出页面 将系统的消息设置为已读
+			let promise = this.$tim.setMessageRead({ conversationID: this.conversationActive.conversationID });
+			promise.then(imResponse => {
+				console.log('全部已读');
+				//调用上一个界面的消息列表刷新方法
+				// 发送页
+				uni.$emit('MsgRead', {});
+				// 已读上报成功
+			})
+			.catch(imError => {
+				// 已读上报失败
+				console.warn('setMessageRead error:', imError);
+			});
 		}
 	}
 </script>

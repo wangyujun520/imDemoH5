@@ -444,7 +444,7 @@ export default {
 						});
 						promise.then(res => {
 							console.log(JSON.stringify(res))
-							if (res.data.actionStatus == 'OK') {
+							if (res.data.ActionStatus == 'OK') {
 								//登录成功后 更新登录状态
 								this.$store.commit('toggleIsLogin', true);
 								// 跳转到消息页面

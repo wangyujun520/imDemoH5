@@ -5,6 +5,7 @@ export default {
 		MyUserId:'',//自己的聊天UserID
 		conversationActive:{},	//聊天进行中的会话
 		toUserId:'',			//聊天对象id
+		toUserInfo:{},//聊天对象的相关资料信息
 		conversationList:[],		//会话列表
 		currentMessageList:[],		//消息列表
 		groupMessageList:[],//群聊消息列表
@@ -14,6 +15,12 @@ export default {
 		// AddMsgList:[]//追加聊天列表（用于消息撤回）
 	},
 	mutations: {//全局方法
+		// 更新聊天对象的资料信息
+		updateToUserInfo(state,toUserInfo){
+			// state.toUserInfo = {};
+			state.toUserInfo = toUserInfo;
+			console.log(JSON.stringify(state.toUserInfo))
+		},
 		//初始化聊天列表
 		InitMsgList(state,InitList){
 			state.MsgList = [];

@@ -476,6 +476,18 @@
 					})
 				}else{
 					// console.log(JSON.stringify(item))
+					// {
+					//     "Type": "C2C",
+					//     "UserID": "17360056365",
+					//     "avatar": "http://oss.anjubang.cn/Anjubang/2022/07/2022070416569503680150.jpg?x-oss-process=style/small",
+					//     "UnreadCount": 0,
+					//     "nick": "马叶根",
+					//     "Msg": "333",
+					//     "lastTime": 1660878160,
+					//     "RankName": "会员",
+					//     "ClientID": "34258454ebbd6b591d5fa24eb0081ee7"
+					// }
+					this.$store.commit('updateToUserInfo',item);//保存聊天对象的资料信息
 					this.$store.commit('createConversationActive', item.UserID);
 					uni.navigateTo({
 						url: '/pages/chat/chat/chat?name='+item.nick+ '&cid=' + item.ClientID
@@ -487,7 +499,7 @@
 				// 拉取会话列表
 				let promise = this.$tim.getConversationList();
 				promise.then(imResponse => {
-					
+					console.log(JSON.stringify(imResponse))
 					const conversationLists = [];
 					imResponse.data.conversationList.forEach(item => {
 						conversationLists.push(item);
@@ -604,7 +616,7 @@
 				});
 				//消息未读计数
 				var ChatCount = 0;
-				// console.log(JSON.stringify(this.chatList))
+				console.log(JSON.stringify(this.chatList))
 				this.chatList.forEach(item => {
 					ChatCount += item.UnreadCount;
 				});
